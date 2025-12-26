@@ -1,0 +1,85 @@
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+interface ProductGalleryProps {
+  images: string[];
+  productName: string;
+}
+
+export function ProductGallery({ images, productName }: ProductGalleryProps) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  
+  const displayImages = images.length > 0 ? images : ['/placeholder.svg'];
+
+  const goToPrevious = () => {
+    setSelectedIndex(prev => 
+      prev === 0 ? displayImages.length - 1 : prev - 1
+    );
+  };
+
+  const goToNext = () => {
+    setSelectedIndex(prev => 
+      prev === displayImages.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Main image */}
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
+        <img
+          src={displayImages[selectedIndex]}
+          alt={`${productName} - Image ${selectedIndex + 1}`}
+          className="h-full w-full object-cover"
+        />
+        
+        {displayImages.length > 1 && (
+          <>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute left-3 top-1/2 -translate-y-1/2"
+              onClick={goToPrevious}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              onClick={goToNext}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnails */}
+      {displayImages.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {displayImages.map((image, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedIndex(index)}
+              className={cn(
+                "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-colors",
+                selectedIndex === index 
+                  ? "border-primary" 
+                  : "border-transparent hover:border-muted-foreground"
+              )}
+            >
+              <img
+                src={image}
+                alt={`${productName} - Thumbnail ${index + 1}`}
+                className="h-full w-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
