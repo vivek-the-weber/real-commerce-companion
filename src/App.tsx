@@ -15,6 +15,13 @@ import AccountProfile from "./pages/AccountProfile";
 import AccountOrders from "./pages/AccountOrders";
 import AccountOrderDetail from "./pages/AccountOrderDetail";
 import AccountAddresses from "./pages/AccountAddresses";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminProductForm from "./pages/admin/AdminProductForm";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminOrderDetail from "./pages/admin/AdminOrderDetail";
+import AdminInventory from "./pages/admin/AdminInventory";
+import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +45,14 @@ const App = () => (
               <Route path="/account/orders" element={<AccountOrders />} />
               <Route path="/account/orders/:orderId" element={<AccountOrderDetail />} />
               <Route path="/account/addresses" element={<AccountAddresses />} />
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/products/:productId" element={<AdminProductForm />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
+              <Route path="/admin/inventory" element={<AdminInventory />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
