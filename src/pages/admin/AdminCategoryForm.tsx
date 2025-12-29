@@ -244,8 +244,8 @@ const AdminCategoryForm = () => {
                     <FormItem>
                       <FormLabel>Parent Category</FormLabel>
                       <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
+                        value={field.value || "__none__"}
+                        onValueChange={(val) => field.onChange(val === "__none__" ? "" : val)}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -253,7 +253,7 @@ const AdminCategoryForm = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None (top-level)</SelectItem>
+                          <SelectItem value="__none__">None (top-level)</SelectItem>
                           {parentOptions.map((cat) => (
                             <SelectItem key={cat.id} value={cat.id}>
                               {cat.name}
