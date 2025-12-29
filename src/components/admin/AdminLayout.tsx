@@ -11,7 +11,8 @@ import {
   LogOut, 
   Loader2,
   Store,
-  ChevronLeft
+  ChevronLeft,
+  FolderTree
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -22,6 +23,7 @@ interface AdminLayoutProps {
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/categories', label: 'Categories', icon: FolderTree },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/admin/inventory', label: 'Inventory', icon: Boxes },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
