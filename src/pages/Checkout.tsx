@@ -4,6 +4,7 @@ import { StoreLayout } from '@/components/layout/StoreLayout';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStoreSettings, useCreateOrder } from '@/hooks/useOrders';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -138,7 +139,25 @@ export default function Checkout() {
         shipping_amount: shippingAmount,
       });
 
-      // Load Razorpay
+      // Call edge function to create Razorpay order
+      const { data: razorpayData, error: razorpayError } = await supabase.functions.invoke(
+        'create-razorpay-order',
+        {
+          body: {
+            order_id: order.id,
+            amount: Math.round(total * 100), // Amount in paise
+          },
+        }
+      );
+
+      if (razorpayError || !razorpayData) {
+        console.error('Razorpay order creation error:', razorpayError);
+        toast.error('Failed to initialize payment. Please try again.');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         toast.error('Failed to load payment gateway. Please try again.');
@@ -146,24 +165,13 @@ export default function Checkout() {
         return;
       }
 
-      // For demo purposes, we'll simulate a successful payment
-      // In production, you would create a Razorpay order via edge function
-      if (!settings?.razorpay_key_id) {
-        // Demo mode - simulate successful payment
-        await clearCart();
-        setOrderId(order.id);
-        setStep('success');
-        setIsProcessing(false);
-        return;
-      }
-
       const options = {
-        key: settings.razorpay_key_id,
-        amount: Math.round(total * 100), // Amount in paise
-        currency: 'INR',
-        name: settings.store_name || 'Store',
+        key: razorpayData.razorpay_key_id,
+        amount: razorpayData.razorpay_order.amount,
+        currency: razorpayData.razorpay_order.currency || 'INR',
+        name: settings?.store_name || 'Store',
         description: `Order Payment`,
-        order_id: order.razorpay_order_id, // This would come from the edge function
+        order_id: razorpayData.razorpay_order.id,
         prefill: {
           name: address.full_name,
           email: address.email,
@@ -173,6 +181,25 @@ export default function Checkout() {
           color: '#d97706',
         },
         handler: async function (response: any) {
+          // Verify payment via edge function
+          const { error: verifyError } = await supabase.functions.invoke(
+            'verify-razorpay-payment',
+            {
+              body: {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                order_id: order.id,
+              },
+            }
+          );
+
+          if (verifyError) {
+            console.error('Payment verification error:', verifyError);
+            toast.error('Payment verification failed. Please contact support.');
+            return;
+          }
+
           // Payment successful
           await clearCart();
           setOrderId(order.id);
