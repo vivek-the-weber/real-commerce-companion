@@ -167,11 +167,11 @@ export default function Checkout() {
 
       const options = {
         key: razorpayData.razorpay_key_id,
-        amount: razorpayData.razorpay_order.amount,
-        currency: razorpayData.razorpay_order.currency || 'INR',
+        amount: razorpayData.amount,
+        currency: razorpayData.currency || 'INR',
         name: settings?.store_name || 'Store',
         description: `Order Payment`,
-        order_id: razorpayData.razorpay_order.id,
+        order_id: razorpayData.razorpay_order_id,
         prefill: {
           name: address.full_name,
           email: address.email,

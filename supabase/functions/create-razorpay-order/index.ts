@@ -33,7 +33,7 @@ serve(async (req) => {
         Authorization: "Basic " + btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`),
       },
       body: JSON.stringify({
-        amount: Math.round(amount * 100), // Amount in paise
+        amount: Math.round(amount), // Amount already in paise from client
         currency,
         receipt: order_id,
         notes: {
