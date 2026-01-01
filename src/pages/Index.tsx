@@ -36,10 +36,18 @@ const Index = () => {
   const section2Products = oversizedTees.length > 0 ? oversizedTees : (allProducts?.slice(4, 8) || []);
   const section3Products = sweatshirts.length > 0 ? sweatshirts : (allProducts?.slice(8, 12) || []);
 
+  // Hero video URLs - replace with your actual video URLs
+  const leftHeroVideo = ""; // Add your left product video URL here (e.g., .mp4 file)
+  const rightHeroVideo = ""; // Add your right product video URL here (e.g., .mp4 file)
+
   return (
     <StoreLayout>
       {/* Hero Section */}
-      <HeroSection products={heroProducts} />
+      <HeroSection 
+        products={heroProducts} 
+        leftVideoUrl={leftHeroVideo || undefined}
+        rightVideoUrl={rightHeroVideo || undefined}
+      />
 
       {/* Just Tee N Time - Regular T-shirts */}
       <CategorySection

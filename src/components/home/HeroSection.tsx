@@ -10,11 +10,60 @@ interface HeroProduct {
 
 interface HeroSectionProps {
   products?: HeroProduct[];
+  leftVideoUrl?: string;
+  rightVideoUrl?: string;
 }
 
-export function HeroSection({ products }: HeroSectionProps) {
+export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSectionProps) {
   const leftProduct = products?.[0];
   const rightProduct = products?.[1];
+
+  // Check if URL is a video
+  const isVideo = (url?: string) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov)$/i) !== null;
+  };
+
+  const renderMedia = (
+    product: HeroProduct | undefined,
+    videoUrl: string | undefined,
+    animationClass: string
+  ) => {
+    const mediaUrl = videoUrl || product?.images?.[0];
+    
+    if (!mediaUrl) {
+      return (
+        <div className={`w-40 md:w-64 aspect-square bg-secondary/20 rounded-lg ${animationClass}`} />
+      );
+    }
+
+    const isVideoMedia = isVideo(mediaUrl);
+
+    if (isVideoMedia) {
+      return (
+        <Link to={product ? `/product/${product.slug}` : '/shop'}>
+          <video
+            src={mediaUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={`w-full max-w-[280px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+          />
+        </Link>
+      );
+    }
+
+    return (
+      <Link to={product ? `/product/${product.slug}` : '/shop'}>
+        <img
+          src={mediaUrl}
+          alt={product?.name || 'Product'}
+          className={`w-full max-w-[280px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+        />
+      </Link>
+    );
+  };
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[80vh] bg-background overflow-hidden flex items-center">
@@ -22,17 +71,7 @@ export function HeroSection({ products }: HeroSectionProps) {
         <div className="grid grid-cols-3 items-center gap-4 md:gap-8">
           {/* Left Product */}
           <div className="flex justify-center">
-            {leftProduct?.images?.[0] ? (
-              <Link to={`/product/${leftProduct.slug}`}>
-                <img
-                  src={leftProduct.images[0]}
-                  alt={leftProduct.name}
-                  className="w-full max-w-[280px] h-auto object-contain animate-float drop-shadow-2xl"
-                />
-              </Link>
-            ) : (
-              <div className="w-40 md:w-64 aspect-square bg-secondary/20 rounded-lg animate-float" />
-            )}
+            {renderMedia(leftProduct, leftVideoUrl, 'animate-float')}
           </div>
 
           {/* Center Content */}
@@ -54,17 +93,7 @@ export function HeroSection({ products }: HeroSectionProps) {
 
           {/* Right Product */}
           <div className="flex justify-center">
-            {rightProduct?.images?.[0] ? (
-              <Link to={`/product/${rightProduct.slug}`}>
-                <img
-                  src={rightProduct.images[0]}
-                  alt={rightProduct.name}
-                  className="w-full max-w-[280px] h-auto object-contain animate-float-delayed drop-shadow-2xl"
-                />
-              </Link>
-            ) : (
-              <div className="w-40 md:w-64 aspect-square bg-secondary/20 rounded-lg animate-float-delayed" />
-            )}
+            {renderMedia(rightProduct, rightVideoUrl, 'animate-float-delayed')}
           </div>
         </div>
       </div>
