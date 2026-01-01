@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Heart, User, Menu, Search, X } from 'lucide-react';
+import { ShoppingBag, User, Menu, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,88 +23,78 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="container-store">
-        {/* Top bar */}
-        <div className="hidden md:flex items-center justify-between py-2 text-sm text-muted-foreground border-b border-border">
-          <span>Free shipping on orders over ₹999</span>
-          <div className="flex items-center gap-4">
-            {isAdmin && (
-              <Link to="/admin" className="link-hover">Admin Dashboard</Link>
-            )}
-            <Link to="/account/orders" className="link-hover">Track Order</Link>
-          </div>
-        </div>
+    <header className="sticky top-0 z-50 bg-background">
+      {/* Top Banner */}
+      <div className="bg-background border-b border-border py-2 text-center">
+        <p className="text-xs md:text-sm text-foreground tracking-widest font-light">
+          Wear Your Aura. Own Your Edge.
+        </p>
+      </div>
 
-        {/* Main header */}
+      {/* Main header */}
+      <div className="container-store">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground/80">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80">
+            <SheetContent side="left" className="w-80 bg-background border-border">
               <nav className="flex flex-col gap-4 mt-8">
-                <Link to="/shop" className="text-lg font-medium link-hover">All Products</Link>
+                <Link to="/shop" className="text-lg font-medium link-hover text-foreground">All Products</Link>
                 {categories?.map(category => (
                   <Link 
                     key={category.id} 
                     to={`/shop?category=${category.slug}`}
-                    className="text-lg link-hover"
+                    className="text-lg link-hover text-foreground"
                   >
                     {category.name}
                   </Link>
                 ))}
-                <hr className="my-4" />
+                <hr className="my-4 border-border" />
+                {isAdmin && (
+                  <Link to="/admin" className="link-hover text-foreground">Admin Dashboard</Link>
+                )}
                 {user ? (
                   <>
-                    <Link to="/account" className="link-hover">My Account</Link>
-                    <Link to="/account/orders" className="link-hover">My Orders</Link>
-                    <Link to="/wishlist" className="link-hover">Wishlist</Link>
+                    <Link to="/account" className="link-hover text-foreground">My Account</Link>
+                    <Link to="/account/orders" className="link-hover text-foreground">My Orders</Link>
                   </>
                 ) : (
-                  <Link to="/auth" className="link-hover">Sign In / Sign Up</Link>
+                  <Link to="/auth" className="link-hover text-foreground">Sign In / Sign Up</Link>
                 )}
               </nav>
             </SheetContent>
           </Sheet>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <h1 className="text-xl md:text-2xl font-display font-bold tracking-tight">
-              MyStore
-            </h1>
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+              <svg viewBox="0 0 40 40" className="w-full h-full text-primary">
+                <path 
+                  fill="currentColor" 
+                  d="M20 2L4 10v20l16 8 16-8V10L20 2zm0 4l12 6-12 6-12-6 12-6zm-14 10l12 6v12l-12-6V16zm14 18V22l12-6v12l-12 6z"
+                />
+              </svg>
+            </div>
+            <span className="font-display text-xl md:text-2xl text-primary tracking-wider">
+              AURAEDGE
+            </span>
           </Link>
 
-          {/* Desktop navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link to="/shop" className="text-sm font-medium link-hover">
-              Shop All
-            </Link>
-            {categories?.slice(0, 4).map(category => (
-              <Link 
-                key={category.id} 
-                to={`/shop?category=${category.slug}`}
-                className="text-sm font-medium link-hover"
-              >
-                {category.name}
-              </Link>
-            ))}
-          </nav>
-
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             {/* Search */}
             {searchOpen ? (
               <form onSubmit={handleSearch} className="flex items-center gap-2">
                 <Input
                   type="search"
-                  placeholder="Search products..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-40 md:w-60"
+                  className="w-32 md:w-48 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
                   autoFocus
                 />
                 <Button 
@@ -112,6 +102,7 @@ export function Header() {
                   variant="ghost" 
                   size="icon"
                   onClick={() => setSearchOpen(false)}
+                  className="text-foreground hover:text-foreground/80"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -121,31 +112,25 @@ export function Header() {
                 variant="ghost" 
                 size="icon"
                 onClick={() => setSearchOpen(true)}
+                className="text-foreground hover:text-foreground/80"
               >
                 <Search className="h-5 w-5" />
               </Button>
             )}
 
-            {/* Wishlist */}
-            <Link to="/wishlist">
-              <Button variant="ghost" size="icon" className="hidden md:flex">
-                <Heart className="h-5 w-5" />
-              </Button>
-            </Link>
-
             {/* Account */}
             <Link to={user ? "/account" : "/auth"}>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground/80">
                 <User className="h-5 w-5" />
               </Button>
             </Link>
 
             {/* Cart */}
             <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative text-foreground hover:text-foreground/80">
                 <ShoppingBag className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] font-medium flex items-center justify-center">
                     {itemCount}
                   </span>
                 )}
