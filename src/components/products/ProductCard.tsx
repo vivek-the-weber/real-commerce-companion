@@ -35,25 +35,20 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link 
       to={`/product/${product.slug}`}
-      className="group block card-hover"
+      className="group block"
     >
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-secondary">
         <img
           src={imageUrl}
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {hasDiscount && (
-            <span className="bg-destructive text-destructive-foreground text-xs font-medium px-2 py-1 rounded">
+            <span className="bg-destructive text-destructive-foreground text-xs font-medium px-2 py-1 rounded-sm">
               -{discountPercent}%
-            </span>
-          )}
-          {product.is_featured && (
-            <span className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
-              Featured
             </span>
           )}
         </div>
@@ -61,21 +56,21 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist button */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 hover:bg-background transition-colors"
+          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
         >
           <Heart 
             className={cn(
               "h-4 w-4 transition-colors",
-              isInWishlist ? "fill-destructive text-destructive" : "text-foreground"
+              isInWishlist ? "fill-primary text-primary" : "text-foreground"
             )} 
           />
         </button>
 
         {/* Quick add */}
-        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-background/80 to-transparent">
           <Button 
             onClick={handleAddToCart}
-            className="w-full"
+            className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-sm"
             size="sm"
           >
             Add to Cart
@@ -83,22 +78,17 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-      <div className="mt-4 space-y-1">
-        {product.category && (
-          <p className="text-xs text-muted-foreground uppercase tracking-wide">
-            {product.category.name}
-          </p>
-        )}
-        <h3 className="font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
+      <div className="mt-3 space-y-1">
+        <h3 className="text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2">
           {product.name}
         </h3>
         <div className="flex items-center gap-2">
-          <span className="font-semibold">
-            ₹{product.price.toLocaleString('en-IN')}
+          <span className="text-sm text-muted-foreground">
+            Rs. {product.price.toLocaleString('en-IN')}.00
           </span>
           {hasDiscount && (
-            <span className="text-sm text-muted-foreground line-through">
-              ₹{product.compare_at_price!.toLocaleString('en-IN')}
+            <span className="text-xs text-muted-foreground/60 line-through">
+              Rs. {product.compare_at_price!.toLocaleString('en-IN')}.00
             </span>
           )}
         </div>
