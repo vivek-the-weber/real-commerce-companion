@@ -37,8 +37,11 @@ const Index = () => {
   const section3Products = sweatshirts.length > 0 ? sweatshirts : (allProducts?.slice(8, 12) || []);
 
   // Hero video URLs
-  const leftHeroVideo = "/videos/miracle.mov";
-  const rightHeroVideo = "/videos/straw_hat_sweatshirt.mov";
+  const leftHeroVideo = "/videos/straw_hat_sweatshirt.mov";
+  const rightHeroVideo = "/videos/miracle.mov";
+
+  // Exclusive collection video - upload a video for this section or leave empty to use product image
+  const exclusiveVideoUrl = ""; // Add your exclusive collection video URL here
 
   return (
     <StoreLayout>
@@ -57,7 +60,7 @@ const Index = () => {
       />
 
       {/* Exclusive Collections */}
-      <ExclusiveCollection product={exclusiveProduct} />
+      <ExclusiveCollection product={exclusiveProduct} videoUrl={exclusiveVideoUrl || undefined} />
 
       {/* Over Tee Sized - Oversized T-shirts */}
       <CategorySection
