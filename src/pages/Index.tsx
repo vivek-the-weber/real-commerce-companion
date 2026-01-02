@@ -40,8 +40,8 @@ const Index = () => {
   const leftHeroVideo = "/videos/straw_hat_sweatshirt.mov";
   const rightHeroVideo = "/videos/miracle.mov";
 
-  // Exclusive collection video - upload a video for this section or leave empty to use product image
-  const exclusiveVideoUrl = ""; // Add your exclusive collection video URL here
+  // Exclusive collection video
+  const exclusiveVideoUrl = "/videos/demon_slayer_and_straw_hat.mov";
 
   return (
     <StoreLayout>
