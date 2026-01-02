@@ -33,7 +33,7 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
     
     if (!mediaUrl) {
       return (
-        <div className={`w-40 md:w-64 aspect-square bg-secondary/20 rounded-lg ${animationClass}`} />
+        <div className={`w-64 md:w-80 lg:w-[400px] aspect-[3/4] bg-secondary/20 rounded-lg ${animationClass}`} />
       );
     }
 
@@ -41,58 +41,58 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
 
     if (isVideoMedia) {
       return (
-        <Link to={product ? `/product/${product.slug}` : '/shop'}>
+        <Link to={product ? `/product/${product.slug}` : '/shop'} className="block">
           <video
             src={mediaUrl}
             autoPlay
             loop
             muted
             playsInline
-            className={`w-full max-w-[280px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+            className={`w-64 md:w-80 lg:w-[400px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
           />
         </Link>
       );
     }
 
     return (
-      <Link to={product ? `/product/${product.slug}` : '/shop'}>
+      <Link to={product ? `/product/${product.slug}` : '/shop'} className="block">
         <img
           src={mediaUrl}
           alt={product?.name || 'Product'}
-          className={`w-full max-w-[280px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+          className={`w-64 md:w-80 lg:w-[400px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
         />
       </Link>
     );
   };
 
   return (
-    <section className="relative min-h-[70vh] md:min-h-[80vh] bg-background overflow-hidden flex items-center">
+    <section className="relative min-h-[85vh] md:min-h-screen bg-background overflow-hidden flex items-center py-8">
       <div className="container-store relative z-10">
-        <div className="grid grid-cols-3 items-center gap-4 md:gap-8">
+        <div className="grid grid-cols-3 items-center gap-2 md:gap-4">
           {/* Left Product */}
-          <div className="flex justify-center">
+          <div className="flex justify-center items-center">
             {renderMedia(leftProduct, leftVideoUrl, 'animate-float')}
           </div>
 
           {/* Center Content */}
-          <div className="text-center space-y-6">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display text-foreground">
+          <div className="text-center space-y-6 px-2">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-display text-foreground">
               New arrivals
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto">
+            <p className="text-xs md:text-sm lg:text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
               Made with care and unconditionally loved by our customers.
             </p>
             <Button
               asChild
               size="lg"
-              className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-8 py-6 text-sm font-medium tracking-wide"
+              className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-6 md:px-8 py-5 md:py-6 text-xs md:text-sm font-medium tracking-wide"
             >
               <Link to="/shop">Shop Now</Link>
             </Button>
           </div>
 
           {/* Right Product */}
-          <div className="flex justify-center">
+          <div className="flex justify-center items-center">
             {renderMedia(rightProduct, rightVideoUrl, 'animate-float-delayed')}
           </div>
         </div>
