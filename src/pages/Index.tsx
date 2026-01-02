@@ -36,9 +36,9 @@ const Index = () => {
   const section2Products = oversizedTees.length > 0 ? oversizedTees : (allProducts?.slice(4, 8) || []);
   const section3Products = sweatshirts.length > 0 ? sweatshirts : (allProducts?.slice(8, 12) || []);
 
-  // Hero video URLs - replace with your actual video URLs
-  const leftHeroVideo = ""; // Add your left product video URL here (e.g., .mp4 file)
-  const rightHeroVideo = ""; // Add your right product video URL here (e.g., .mp4 file)
+  // Hero video URLs
+  const leftHeroVideo = "/videos/miracle.mov";
+  const rightHeroVideo = "/videos/straw_hat_sweatshirt.mov";
 
   return (
     <StoreLayout>
