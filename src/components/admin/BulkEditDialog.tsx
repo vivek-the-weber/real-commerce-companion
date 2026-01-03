@@ -39,12 +39,15 @@ const BulkEditDialog = ({ open, onOpenChange, selectedIds, onSuccess }: BulkEdit
   // Track which fields to update
   const [updateCategory, setUpdateCategory] = useState(false);
   const [updatePrice, setUpdatePrice] = useState(false);
+  const [updateStock, setUpdateStock] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(false);
 
   // Field values
   const [categoryId, setCategoryId] = useState<string>('');
   const [priceType, setPriceType] = useState<'absolute' | 'percentage'>('absolute');
   const [priceValue, setPriceValue] = useState('');
+  const [stockType, setStockType] = useState<'absolute' | 'adjust'>('absolute');
+  const [stockValue, setStockValue] = useState('');
   const [isActive, setIsActive] = useState(true);
 
   const bulkUpdateMutation = useMutation({
@@ -105,6 +108,41 @@ const BulkEditDialog = ({ open, onOpenChange, selectedIds, onSuccess }: BulkEdit
           }
         }
       }
+      // Handle stock updates
+      if (updateStock && stockValue) {
+        if (stockType === 'absolute') {
+          const newStock = parseInt(stockValue);
+          if (isNaN(newStock) || newStock < 0) throw new Error('Invalid stock value');
+
+          const { error } = await supabase
+            .from('products')
+            .update({ stock_quantity: newStock })
+            .in('id', selectedIds);
+
+          if (error) throw error;
+        } else {
+          // Adjust stock - fetch and update each product
+          const adjustment = parseInt(stockValue);
+          if (isNaN(adjustment)) throw new Error('Invalid stock adjustment');
+
+          const { data: products, error: fetchError } = await supabase
+            .from('products')
+            .select('id, stock_quantity')
+            .in('id', selectedIds);
+
+          if (fetchError) throw fetchError;
+
+          for (const product of products || []) {
+            const newStock = Math.max(0, product.stock_quantity + adjustment);
+            const { error } = await supabase
+              .from('products')
+              .update({ stock_quantity: newStock })
+              .eq('id', product.id);
+
+            if (error) throw error;
+          }
+        }
+      }
     },
     onSuccess: () => {
       toast.success(`Successfully updated ${selectedIds.length} products`);
@@ -121,10 +159,13 @@ const BulkEditDialog = ({ open, onOpenChange, selectedIds, onSuccess }: BulkEdit
   const resetForm = () => {
     setUpdateCategory(false);
     setUpdatePrice(false);
+    setUpdateStock(false);
     setUpdateStatus(false);
     setCategoryId('');
     setPriceType('absolute');
     setPriceValue('');
+    setStockType('absolute');
+    setStockValue('');
     setIsActive(true);
   };
 
@@ -135,7 +176,7 @@ const BulkEditDialog = ({ open, onOpenChange, selectedIds, onSuccess }: BulkEdit
     onOpenChange(open);
   };
 
-  const canSubmit = updateCategory || updatePrice || updateStatus;
+  const canSubmit = updateCategory || updatePrice || updateStock || updateStatus;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -220,7 +261,39 @@ const BulkEditDialog = ({ open, onOpenChange, selectedIds, onSuccess }: BulkEdit
             )}
           </div>
 
-          {/* Status Update */}
+          {/* Stock Update */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="update-stock"
+                checked={updateStock}
+                onCheckedChange={(checked) => setUpdateStock(checked === true)}
+              />
+              <Label htmlFor="update-stock" className="font-medium">
+                Change Stock
+              </Label>
+            </div>
+            {updateStock && (
+              <div className="space-y-2">
+                <Select value={stockType} onValueChange={(v) => setStockType(v as 'absolute' | 'adjust')}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="absolute">Set Absolute Stock</SelectItem>
+                    <SelectItem value="adjust">Adjust Stock (+/-)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="number"
+                  placeholder={stockType === 'absolute' ? 'Enter stock quantity' : 'e.g. 10 to add, -5 to reduce'}
+                  value={stockValue}
+                  onChange={(e) => setStockValue(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
+
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Checkbox
