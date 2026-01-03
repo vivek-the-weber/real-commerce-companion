@@ -33,9 +33,9 @@ export function CategorySection({ title, categorySlug, products }: CategorySecti
           )}
         </div>
 
-        {/* Products Grid */}
+        {/* Products Grid - 8 products in 4x2 grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {products.slice(0, 4).map(product => {
+          {products.slice(0, 8).map(product => {
             const imageUrl = product.images?.[0] || '/placeholder.svg';
             return (
               <Link

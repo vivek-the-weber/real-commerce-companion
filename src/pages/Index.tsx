@@ -1,6 +1,7 @@
 import { StoreLayout } from '@/components/layout/StoreLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { CategorySection } from '@/components/home/CategorySection';
+import { ScrollableCategorySection } from '@/components/home/ScrollableCategorySection';
 import { ExclusiveCollection } from '@/components/home/ExclusiveCollection';
 import { Marquee } from '@/components/home/Marquee';
 import { useProducts } from '@/hooks/useProducts';
@@ -9,9 +10,9 @@ const Index = () => {
   const { data: featuredProducts } = useProducts({ featured: true, limit: 8 });
   
   // Fetch products directly per category
-  const { data: simpleTees } = useProducts({ categorySlug: 'simple-tees', limit: 4 });
-  const { data: oversizedTees } = useProducts({ categorySlug: 'oversized-tees', limit: 4 });
-  const { data: sweatshirts } = useProducts({ categorySlug: 'sweatshirts', limit: 4 });
+  const { data: simpleTees } = useProducts({ categorySlug: 'simple-tees', limit: 8 });
+  const { data: oversizedTees } = useProducts({ categorySlug: 'oversized-tees', limit: 6 });
+  const { data: sweatshirts } = useProducts({ categorySlug: 'sweatshirts', limit: 6 });
 
   // Hero products (first 2 featured)
   const heroProducts = featuredProducts?.slice(0, 2) || [];
@@ -45,8 +46,8 @@ const Index = () => {
       {/* Exclusive Collections */}
       <ExclusiveCollection product={exclusiveProduct} videoUrl={exclusiveVideoUrl || undefined} />
 
-      {/* Over Tee Sized - Oversized T-shirts */}
-      <CategorySection
+      {/* Over Tee Sized - Oversized T-shirts (Scrollable) */}
+      <ScrollableCategorySection
         title="Over Tee Sized"
         categorySlug="oversized-tees"
         products={oversizedTees || []}
@@ -55,8 +56,8 @@ const Index = () => {
       {/* Marquee */}
       <Marquee />
 
-      {/* SweaTee Shirts */}
-      <CategorySection
+      {/* SweaTee Shirts (Scrollable) */}
+      <ScrollableCategorySection
         title="SweaTee Shirts"
         categorySlug="sweatshirts"
         products={sweatshirts || []}
