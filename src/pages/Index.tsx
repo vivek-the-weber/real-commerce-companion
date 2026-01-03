@@ -3,38 +3,21 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { CategorySection } from '@/components/home/CategorySection';
 import { ExclusiveCollection } from '@/components/home/ExclusiveCollection';
 import { Marquee } from '@/components/home/Marquee';
-import { useProducts, useCategories } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/useProducts';
 
 const Index = () => {
   const { data: featuredProducts } = useProducts({ featured: true, limit: 8 });
-  const { data: allProducts } = useProducts({ limit: 20 });
-  const { data: categories } = useCategories();
-
-  // Get products by category for different sections
-  const getProductsByCategory = (categorySlug: string, limit = 4) => {
-    if (!allProducts || !categories) return [];
-    const category = categories.find(c => c.slug === categorySlug);
-    if (!category) return [];
-    return allProducts
-      .filter(p => p.category_id === category.id)
-      .slice(0, limit);
-  };
+  
+  // Fetch products directly per category
+  const { data: simpleTees } = useProducts({ categorySlug: 'simple-tees', limit: 4 });
+  const { data: oversizedTees } = useProducts({ categorySlug: 'oversized-tees', limit: 4 });
+  const { data: sweatshirts } = useProducts({ categorySlug: 'sweatshirts', limit: 4 });
 
   // Hero products (first 2 featured)
   const heroProducts = featuredProducts?.slice(0, 2) || [];
 
   // Get an exclusive/featured product for the editorial section
   const exclusiveProduct = featuredProducts?.[0] || null;
-
-  // Category sections - adjust slugs based on your actual categories
-  const simpleTees = getProductsByCategory('simple-tees');
-  const oversizedTees = getProductsByCategory('oversized-tees');
-  const sweatshirts = getProductsByCategory('sweatshirts');
-
-  // Fallback: if no category products, use featured/all products
-  const section1Products = simpleTees.length > 0 ? simpleTees : (featuredProducts?.slice(0, 4) || []);
-  const section2Products = oversizedTees.length > 0 ? oversizedTees : (allProducts?.slice(4, 8) || []);
-  const section3Products = sweatshirts.length > 0 ? sweatshirts : (allProducts?.slice(8, 12) || []);
 
   // Hero video URLs
   const leftHeroVideo = "/videos/straw_hat_sweatshirt.mov";
@@ -56,7 +39,7 @@ const Index = () => {
       <CategorySection
         title="Just Tee N Time"
         categorySlug="simple-tees"
-        products={section1Products}
+        products={simpleTees || []}
       />
 
       {/* Exclusive Collections */}
@@ -66,7 +49,7 @@ const Index = () => {
       <CategorySection
         title="Over Tee Sized"
         categorySlug="oversized-tees"
-        products={section2Products}
+        products={oversizedTees || []}
       />
 
       {/* Marquee */}
@@ -76,7 +59,7 @@ const Index = () => {
       <CategorySection
         title="SweaTee Shirts"
         categorySlug="sweatshirts"
-        products={section3Products}
+        products={sweatshirts || []}
       />
     </StoreLayout>
   );
