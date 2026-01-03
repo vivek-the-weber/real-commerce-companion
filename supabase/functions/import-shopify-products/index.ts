@@ -37,6 +37,7 @@ interface ProductData {
     price: number;
     stock_quantity: number;
     options: { color: string };
+    image_url: string | null;
   }[];
 }
 
@@ -86,13 +87,18 @@ serve(async (req) => {
           const existingVariant = existingProduct.variants.find(v => v.name === colorOption);
           if (existingVariant) {
             existingVariant.stock_quantity += variantQty;
+            // Update image if this row has one and variant doesn't
+            if (imageSrc && !existingVariant.image_url) {
+              existingVariant.image_url = imageSrc;
+            }
           } else {
             existingProduct.variants.push({
               name: colorOption,
               sku: row['Variant SKU'] || '',
               price: variantPrice,
               stock_quantity: variantQty,
-              options: { color: colorOption }
+              options: { color: colorOption },
+              image_url: imageSrc || null
             });
           }
         }
@@ -124,7 +130,8 @@ serve(async (req) => {
             sku: row['Variant SKU'] || '',
             price: variantPrice,
             stock_quantity: variantQty,
-            options: { color: colorOption }
+            options: { color: colorOption },
+            image_url: imageSrc || null
           }] : []
         };
 
@@ -178,7 +185,8 @@ serve(async (req) => {
             sku: v.sku || null,
             price: v.price,
             stock_quantity: v.stock_quantity,
-            options: v.options
+            options: v.options,
+            image_url: v.image_url
           }));
 
           const { error: variantsError, data: insertedVariants } = await supabase
