@@ -30,10 +30,11 @@ const navItems = [
 ];
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const { user, loading, isAdmin, signOut } = useAuth();
+  const { user, loading, isAdmin, adminLoading, signOut } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  // Wait for both auth and admin check to complete
+  if (loading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
