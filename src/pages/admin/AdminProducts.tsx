@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import AdminLayout from '@/components/admin/AdminLayout';
+import BulkEditDialog from '@/components/admin/BulkEditDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -26,13 +28,15 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { Plus, Search, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Loader2, X, Pencil } from 'lucide-react';
 import type { Product } from '@/types/store';
 
 const AdminProducts = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['admin-products', search],
@@ -67,6 +71,35 @@ const AdminProducts = () => {
     },
   });
 
+  // Get visible product IDs (those currently shown based on search filter)
+  const visibleProductIds = products?.map(p => p.id) || [];
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(visibleProductIds));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectProduct = (productId: string, checked: boolean) => {
+    const newSelected = new Set(selectedIds);
+    if (checked) {
+      newSelected.add(productId);
+    } else {
+      newSelected.delete(productId);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+  };
+
+  // Check if all visible products are selected
+  const allSelected = visibleProductIds.length > 0 && visibleProductIds.every(id => selectedIds.has(id));
+  const someSelected = visibleProductIds.some(id => selectedIds.has(id));
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -80,6 +113,27 @@ const AdminProducts = () => {
           </Button>
         </div>
 
+        {/* Bulk Actions Toolbar */}
+        {selectedIds.size > 0 && (
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="font-medium text-primary">
+                {selectedIds.size} product{selectedIds.size > 1 ? 's' : ''} selected
+              </span>
+              <Button variant="ghost" size="sm" onClick={clearSelection}>
+                <X className="h-4 w-4 mr-1" />
+                Clear
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => setBulkEditOpen(true)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Bulk Edit
+              </Button>
+            </div>
+          </div>
+        )}
+
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
@@ -88,7 +142,11 @@ const AdminProducts = () => {
                 <Input
                   placeholder="Search products..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    // Clear selection when search changes
+                    setSelectedIds(new Set());
+                  }}
                   className="pl-9"
                 />
               </div>
@@ -107,6 +165,13 @@ const AdminProducts = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={allSelected}
+                        onCheckedChange={handleSelectAll}
+                        aria-label="Select all products"
+                      />
+                    </TableHead>
                     <TableHead>Product</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Price</TableHead>
@@ -117,7 +182,17 @@ const AdminProducts = () => {
                 </TableHeader>
                 <TableBody>
                   {products.map((product) => (
-                    <TableRow key={product.id}>
+                    <TableRow 
+                      key={product.id}
+                      className={selectedIds.has(product.id) ? 'bg-primary/5' : ''}
+                    >
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIds.has(product.id)}
+                          onCheckedChange={(checked) => handleSelectProduct(product.id, checked === true)}
+                          aria-label={`Select ${product.name}`}
+                        />
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           {product.images?.[0] && (
@@ -190,6 +265,13 @@ const AdminProducts = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BulkEditDialog
+        open={bulkEditOpen}
+        onOpenChange={setBulkEditOpen}
+        selectedIds={Array.from(selectedIds)}
+        onSuccess={clearSelection}
+      />
     </AdminLayout>
   );
 };
