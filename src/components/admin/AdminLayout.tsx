@@ -12,7 +12,8 @@ import {
   Loader2,
   Store,
   ChevronLeft,
-  FolderTree
+  FolderTree,
+  Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -26,6 +27,7 @@ const navItems = [
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/admin/inventory', label: 'Inventory', icon: Boxes },
+  { href: '/admin/import', label: 'Import', icon: Upload },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
