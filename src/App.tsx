@@ -24,6 +24,7 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminOrderDetail from "./pages/admin/AdminOrderDetail";
 import AdminInventory from "./pages/admin/AdminInventory";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminImport from "./pages/admin/AdminImport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
               <Route path="/admin/inventory" element={<AdminInventory />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/import" element={<AdminImport />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
