@@ -27,12 +27,12 @@ const Index = () => {
   const exclusiveProduct = featuredProducts?.[0] || null;
 
   // Category sections - adjust slugs based on your actual categories
-  const regularTees = getProductsByCategory('regular-tees');
+  const simpleTees = getProductsByCategory('simple-tshirt');
   const oversizedTees = getProductsByCategory('oversized-tees');
   const sweatshirts = getProductsByCategory('sweatshirts');
 
   // Fallback: if no category products, use featured/all products
-  const section1Products = regularTees.length > 0 ? regularTees : (featuredProducts?.slice(0, 4) || []);
+  const section1Products = simpleTees.length > 0 ? simpleTees : (featuredProducts?.slice(0, 4) || []);
   const section2Products = oversizedTees.length > 0 ? oversizedTees : (allProducts?.slice(4, 8) || []);
   const section3Products = sweatshirts.length > 0 ? sweatshirts : (allProducts?.slice(8, 12) || []);
 
@@ -52,10 +52,10 @@ const Index = () => {
         rightVideoUrl={rightHeroVideo || undefined}
       />
 
-      {/* Just Tee N Time - Regular T-shirts */}
+      {/* Just Tee N Time - Simple T-shirts */}
       <CategorySection
         title="Just Tee N Time"
-        categorySlug="regular-tees"
+        categorySlug="simple-tshirt"
         products={section1Products}
       />
 
