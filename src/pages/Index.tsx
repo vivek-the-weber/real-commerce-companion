@@ -27,7 +27,7 @@ const Index = () => {
   const exclusiveProduct = featuredProducts?.[0] || null;
 
   // Category sections - adjust slugs based on your actual categories
-  const simpleTees = getProductsByCategory('simple-tshirt');
+  const simpleTees = getProductsByCategory('simple-tees');
   const oversizedTees = getProductsByCategory('oversized-tees');
   const sweatshirts = getProductsByCategory('sweatshirts');
 
@@ -55,7 +55,7 @@ const Index = () => {
       {/* Just Tee N Time - Simple T-shirts */}
       <CategorySection
         title="Just Tee N Time"
-        categorySlug="simple-tshirt"
+        categorySlug="simple-tees"
         products={section1Products}
       />
 
