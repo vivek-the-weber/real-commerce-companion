@@ -66,11 +66,11 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
   };
 
   return (
-    <section className="relative min-h-screen bg-background overflow-hidden flex items-center py-8">
-      <div className="container-store relative z-10">
-        <div className="grid grid-cols-3 items-center gap-2 md:gap-4">
-          {/* Left Product */}
-          <div className="flex justify-center items-center">
+    <section className="relative min-h-screen bg-background flex items-center py-8 overflow-x-clip">
+      <div className="w-full relative z-10">
+        <div className="grid grid-cols-3 items-center">
+          {/* Left Product - extends beyond left edge */}
+          <div className="flex justify-end items-center -ml-16 md:-ml-24 lg:-ml-32 xl:-ml-40">
             {renderMedia(leftProduct, leftVideoUrl, 'animate-float')}
           </div>
 
@@ -91,8 +91,8 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
             </Button>
           </div>
 
-          {/* Right Product */}
-          <div className="flex justify-center items-center">
+          {/* Right Product - extends beyond right edge */}
+          <div className="flex justify-start items-center -mr-16 md:-mr-24 lg:-mr-32 xl:-mr-40">
             {renderMedia(rightProduct, rightVideoUrl, 'animate-float-delayed')}
           </div>
         </div>
