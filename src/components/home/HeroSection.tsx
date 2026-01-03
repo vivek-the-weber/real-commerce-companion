@@ -33,7 +33,7 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
     
     if (!mediaUrl) {
       return (
-        <div className={`w-64 md:w-80 lg:w-[400px] aspect-[3/4] bg-secondary/20 rounded-lg ${animationClass}`} />
+        <div className={`w-80 md:w-96 lg:w-[550px] xl:w-[650px] aspect-[3/4] bg-secondary/20 rounded-lg ${animationClass}`} />
       );
     }
 
@@ -48,7 +48,7 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
             loop
             muted
             playsInline
-            className={`w-64 md:w-80 lg:w-[400px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+            className={`w-80 md:w-96 lg:w-[550px] xl:w-[650px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
           />
         </Link>
       );
@@ -59,14 +59,14 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
         <img
           src={mediaUrl}
           alt={product?.name || 'Product'}
-          className={`w-64 md:w-80 lg:w-[400px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+          className={`w-80 md:w-96 lg:w-[550px] xl:w-[650px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
         />
       </Link>
     );
   };
 
   return (
-    <section className="relative min-h-[85vh] md:min-h-screen bg-background overflow-hidden flex items-center py-8">
+    <section className="relative min-h-screen bg-background overflow-hidden flex items-center py-8">
       <div className="container-store relative z-10">
         <div className="grid grid-cols-3 items-center gap-2 md:gap-4">
           {/* Left Product */}
