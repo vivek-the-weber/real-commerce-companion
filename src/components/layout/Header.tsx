@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ShoppingBag, User, Menu, Search, X } from 'lucide-react';
+import logo from '@/assets/logo.png';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,18 +71,12 @@ export function Header() {
           </Sheet>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
-              <svg viewBox="0 0 40 40" className="w-full h-full text-primary">
-                <path 
-                  fill="currentColor" 
-                  d="M20 2L4 10v20l16 8 16-8V10L20 2zm0 4l12 6-12 6-12-6 12-6zm-14 10l12 6v12l-12-6V16zm14 18V22l12-6v12l-12 6z"
-                />
-              </svg>
-            </div>
-            <span className="font-display text-xl md:text-2xl text-primary tracking-wider">
-              AURAEDGE
-            </span>
+          <Link to="/" className="flex items-center">
+            <img 
+              src={logo} 
+              alt="AURAEDGE" 
+              className="h-12 md:h-16 w-auto"
+            />
           </Link>
 
           {/* Actions */}
