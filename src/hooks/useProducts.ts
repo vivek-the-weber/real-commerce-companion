@@ -11,6 +11,17 @@ export function useProducts(options?: {
   return useQuery({
     queryKey: ['products', options],
     queryFn: async () => {
+      // If filtering by category, first get the category ID
+      let categoryId: string | null = null;
+      if (options?.categorySlug) {
+        const { data: category } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('slug', options.categorySlug)
+          .maybeSingle();
+        categoryId = category?.id || null;
+      }
+
       let query = supabase
         .from('products')
         .select(`
@@ -25,8 +36,8 @@ export function useProducts(options?: {
         query = query.eq('is_featured', true);
       }
 
-      if (options?.categorySlug) {
-        query = query.eq('category.slug', options.categorySlug);
+      if (categoryId) {
+        query = query.eq('category_id', categoryId);
       }
 
       if (options?.search) {
