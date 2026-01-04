@@ -8,3 +8,15 @@ verify_jwt = false
 
 [functions.import-shopify-products]
 verify_jwt = false
+
+[functions.shiprocket-auth]
+verify_jwt = false
+
+[functions.shiprocket-create-order]
+verify_jwt = false
+
+[functions.shiprocket-generate-awb]
+verify_jwt = false
+
+[functions.shiprocket-track]
+verify_jwt = false
