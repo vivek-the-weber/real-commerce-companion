@@ -68,16 +68,56 @@ serve(async (req) => {
       phone?: string;
     };
 
+    // Fetch product dimensions for the order items
+    const productIds = order.order_items.map((item: any) => item.product_id).filter(Boolean);
+    let productsMap: Record<string, any> = {};
+    
+    if (productIds.length > 0) {
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, weight, length, breadth, height, sku')
+        .in('id', productIds);
+      
+      if (products) {
+        productsMap = products.reduce((acc: any, p: any) => {
+          acc[p.id] = p;
+          return acc;
+        }, {});
+      }
+    }
+
+    // Calculate total dimensions (use largest item's dimensions, sum weights)
+    let totalWeight = 0;
+    let maxLength = 20;
+    let maxBreadth = 15;
+    let maxHeight = 5;
+
+    for (const item of order.order_items) {
+      const product = productsMap[item.product_id] || {};
+      const itemWeight = (Number(product.weight) || 0.5) * item.quantity;
+      totalWeight += itemWeight;
+      
+      if (Number(product.length) > maxLength) maxLength = Number(product.length);
+      if (Number(product.breadth) > maxBreadth) maxBreadth = Number(product.breadth);
+      if (Number(product.height) > maxHeight) maxHeight = Number(product.height);
+    }
+
+    // Ensure minimum weight
+    if (totalWeight < 0.5) totalWeight = 0.5;
+
     // Format order items for Shiprocket
-    const orderItems = order.order_items.map((item: any) => ({
-      name: item.product_name,
-      sku: `SKU-${item.product_id?.substring(0, 8) || 'ITEM'}`,
-      units: item.quantity,
-      selling_price: Number(item.unit_price),
-      discount: 0,
-      tax: 0,
-      hsn: '',
-    }));
+    const orderItems = order.order_items.map((item: any) => {
+      const product = productsMap[item.product_id] || {};
+      return {
+        name: item.product_name,
+        sku: product.sku || `SKU-${item.product_id?.substring(0, 8) || 'ITEM'}`,
+        units: item.quantity,
+        selling_price: Number(item.unit_price),
+        discount: 0,
+        tax: 0,
+        hsn: '',
+      };
+    });
 
     // Create Shiprocket order payload
     const shiprocketPayload = {
@@ -98,13 +138,18 @@ serve(async (req) => {
       order_items: orderItems,
       payment_method: 'Prepaid',
       sub_total: Number(order.subtotal),
-      length: 20,
-      breadth: 15,
-      height: 5,
-      weight: 0.5,
+      length: maxLength,
+      breadth: maxBreadth,
+      height: maxHeight,
+      weight: totalWeight,
     };
 
-    console.log('Sending to Shiprocket:', JSON.stringify(shiprocketPayload));
+    console.log('Sending to Shiprocket with dimensions:', {
+      weight: totalWeight,
+      length: maxLength,
+      breadth: maxBreadth,
+      height: maxHeight,
+    });
 
     // Create order in Shiprocket
     const shiprocketResponse = await fetch('https://apiv2.shiprocket.in/v1/external/orders/create/adhoc', {
