@@ -27,6 +27,11 @@ export interface Product {
   updated_at: string;
   category?: Category;
   variants?: ProductVariant[];
+  // Shipping dimensions
+  weight?: number;
+  length?: number;
+  breadth?: number;
+  height?: number;
 }
 
 export interface ProductVariant {

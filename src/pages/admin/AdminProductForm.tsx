@@ -48,6 +48,11 @@ const AdminProductForm = () => {
     is_active: true,
     is_featured: false,
     images: [''],
+    // Shipping dimensions
+    weight: '0.5',
+    length: '20',
+    breadth: '15',
+    height: '5',
   });
 
   const [variants, setVariants] = useState<VariantFormData[]>([]);
@@ -105,6 +110,10 @@ const AdminProductForm = () => {
         is_active: product.is_active,
         is_featured: product.is_featured,
         images: product.images?.length ? product.images : [''],
+        weight: product.weight?.toString() || '0.5',
+        length: product.length?.toString() || '20',
+        breadth: product.breadth?.toString() || '15',
+        height: product.height?.toString() || '5',
       });
     }
   }, [product]);
@@ -153,6 +162,10 @@ const AdminProductForm = () => {
         is_active: formData.is_active,
         is_featured: formData.is_featured,
         images: formData.images.filter((img) => img.trim()),
+        weight: parseFloat(formData.weight) || 0.5,
+        length: parseFloat(formData.length) || 20,
+        breadth: parseFloat(formData.breadth) || 15,
+        height: parseFloat(formData.height) || 5,
       };
 
       let savedProductId = productId;
@@ -372,6 +385,68 @@ const AdminProductForm = () => {
                     />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Shipping Dimensions */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>Shipping Dimensions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="weight">Weight (kg)</Label>
+                    <Input
+                      id="weight"
+                      type="number"
+                      value={formData.weight}
+                      onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                      placeholder="0.5"
+                      min="0.01"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="length">Length (cm)</Label>
+                    <Input
+                      id="length"
+                      type="number"
+                      value={formData.length}
+                      onChange={(e) => setFormData({ ...formData, length: e.target.value })}
+                      placeholder="20"
+                      min="1"
+                      step="0.1"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="breadth">Breadth (cm)</Label>
+                    <Input
+                      id="breadth"
+                      type="number"
+                      value={formData.breadth}
+                      onChange={(e) => setFormData({ ...formData, breadth: e.target.value })}
+                      placeholder="15"
+                      min="1"
+                      step="0.1"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="height">Height (cm)</Label>
+                    <Input
+                      id="height"
+                      type="number"
+                      value={formData.height}
+                      onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                      placeholder="5"
+                      min="1"
+                      step="0.1"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Used for Shiprocket shipping calculations. Default values: 0.5kg, 20×15×5 cm
+                </p>
               </CardContent>
             </Card>
 

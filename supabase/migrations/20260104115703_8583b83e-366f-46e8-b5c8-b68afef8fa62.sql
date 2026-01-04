@@ -1,0 +1,5 @@
+-- Add shipping dimensions to products table
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS weight NUMERIC DEFAULT 0.5;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS length NUMERIC DEFAULT 20;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS breadth NUMERIC DEFAULT 15;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS height NUMERIC DEFAULT 5;

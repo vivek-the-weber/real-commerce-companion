@@ -327,14 +327,17 @@ export type Database = {
       }
       products: {
         Row: {
+          breadth: number | null
           category_id: string | null
           compare_at_price: number | null
           created_at: string
           description: string | null
+          height: number | null
           id: string
           images: string[] | null
           is_active: boolean
           is_featured: boolean
+          length: number | null
           name: string
           price: number
           sku: string | null
@@ -342,16 +345,20 @@ export type Database = {
           specifications: Json | null
           stock_quantity: number
           updated_at: string
+          weight: number | null
         }
         Insert: {
+          breadth?: number | null
           category_id?: string | null
           compare_at_price?: number | null
           created_at?: string
           description?: string | null
+          height?: number | null
           id?: string
           images?: string[] | null
           is_active?: boolean
           is_featured?: boolean
+          length?: number | null
           name: string
           price?: number
           sku?: string | null
@@ -359,16 +366,20 @@ export type Database = {
           specifications?: Json | null
           stock_quantity?: number
           updated_at?: string
+          weight?: number | null
         }
         Update: {
+          breadth?: number | null
           category_id?: string | null
           compare_at_price?: number | null
           created_at?: string
           description?: string | null
+          height?: number | null
           id?: string
           images?: string[] | null
           is_active?: boolean
           is_featured?: boolean
+          length?: number | null
           name?: string
           price?: number
           sku?: string | null
@@ -376,6 +387,7 @@ export type Database = {
           specifications?: Json | null
           stock_quantity?: number
           updated_at?: string
+          weight?: number | null
         }
         Relationships: [
           {
