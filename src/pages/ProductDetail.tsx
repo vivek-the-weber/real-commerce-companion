@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { StoreLayout } from '@/components/layout/StoreLayout';
 import { ProductGallery } from '@/components/products/ProductGallery';
@@ -6,10 +7,18 @@ import { ProductGrid } from '@/components/products/ProductGrid';
 import { useProduct, useProducts } from '@/hooks/useProducts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight } from 'lucide-react';
+import { ProductVariant } from '@/types/store';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading } = useProduct(slug || '');
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+
+  useEffect(() => {
+    if (product?.variants?.[0]) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product]);
   const { data: relatedProducts } = useProducts({
     categorySlug: product?.category?.slug,
     limit: 4,
@@ -80,8 +89,16 @@ export default function ProductDetail() {
 
         {/* Product Details */}
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 mb-16">
-          <ProductGallery images={product.images || []} productName={product.name} />
-          <ProductInfo product={product} />
+          <ProductGallery 
+            images={product.images || []} 
+            productName={product.name}
+            selectedVariantImageUrl={selectedVariant?.image_url}
+          />
+          <ProductInfo 
+            product={product} 
+            selectedVariant={selectedVariant}
+            onVariantChange={setSelectedVariant}
+          />
         </div>
 
         {/* Product Description */}

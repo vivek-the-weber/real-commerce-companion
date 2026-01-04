@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -6,12 +6,23 @@ import { cn } from '@/lib/utils';
 interface ProductGalleryProps {
   images: string[];
   productName: string;
+  selectedVariantImageUrl?: string | null;
 }
 
-export function ProductGallery({ images, productName }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, selectedVariantImageUrl }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   
   const displayImages = images.length > 0 ? images : ['/placeholder.svg'];
+
+  // When variant changes, find matching image or show variant image
+  useEffect(() => {
+    if (selectedVariantImageUrl) {
+      const matchIndex = displayImages.findIndex(img => img === selectedVariantImageUrl);
+      if (matchIndex !== -1) {
+        setSelectedIndex(matchIndex);
+      }
+    }
+  }, [selectedVariantImageUrl, displayImages]);
 
   const goToPrevious = () => {
     setSelectedIndex(prev => 
@@ -25,12 +36,17 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
     );
   };
 
+  // Use variant image if it exists and isn't in the gallery
+  const mainImage = selectedVariantImageUrl && !displayImages.includes(selectedVariantImageUrl)
+    ? selectedVariantImageUrl
+    : displayImages[selectedIndex];
+
   return (
     <div className="space-y-4">
       {/* Main image */}
       <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
         <img
-          src={displayImages[selectedIndex]}
+          src={mainImage}
           alt={`${productName} - Image ${selectedIndex + 1}`}
           className="h-full w-full object-cover"
         />
@@ -66,7 +82,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               onClick={() => setSelectedIndex(index)}
               className={cn(
                 "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-colors",
-                selectedIndex === index 
+                selectedIndex === index && (!selectedVariantImageUrl || displayImages.includes(selectedVariantImageUrl))
                   ? "border-primary" 
                   : "border-transparent hover:border-muted-foreground"
               )}
