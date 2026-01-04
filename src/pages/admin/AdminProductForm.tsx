@@ -527,14 +527,14 @@ const AdminProductForm = () => {
                           <div className="space-y-1">
                             <Label className="text-xs">Link to Image</Label>
                             <Select
-                              value={variant.image_url}
-                              onValueChange={(value) => updateVariant(index, 'image_url', value)}
+                              value={variant.image_url || "__none__"}
+                              onValueChange={(value) => updateVariant(index, 'image_url', value === "__none__" ? '' : value)}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select image" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">No image</SelectItem>
+                                <SelectItem value="__none__">No image</SelectItem>
                                 {availableImages.map((img, imgIndex) => (
                                   <SelectItem key={imgIndex} value={img}>
                                     Image {imgIndex + 1}
