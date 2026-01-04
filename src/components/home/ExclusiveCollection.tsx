@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ExclusiveCollectionProps {
   product?: {
@@ -12,6 +13,7 @@ interface ExclusiveCollectionProps {
 
 export function ExclusiveCollection({ product, videoUrl }: ExclusiveCollectionProps) {
   const mediaUrl = videoUrl || product?.images?.[0];
+  const isMobile = useIsMobile();
 
   // Check if URL is a video
   const isVideo = (url?: string) => {
@@ -22,9 +24,13 @@ export function ExclusiveCollection({ product, videoUrl }: ExclusiveCollectionPr
   const isVideoMedia = isVideo(mediaUrl);
 
   const renderMedia = () => {
+    const mediaClass = isMobile 
+      ? 'w-full max-w-[280px]' 
+      : 'w-full max-w-xl lg:max-w-2xl';
+
     if (!mediaUrl) {
       return (
-        <div className="w-full max-w-xl lg:max-w-2xl aspect-[3/4] bg-secondary/20 rounded-lg flex items-center justify-center">
+        <div className={`${mediaClass} aspect-[3/4] bg-secondary/20 rounded-lg flex items-center justify-center`}>
           <span className="text-muted-foreground">Featured Product</span>
         </div>
       );
@@ -39,7 +45,7 @@ export function ExclusiveCollection({ product, videoUrl }: ExclusiveCollectionPr
             loop
             muted
             playsInline
-            className="w-full max-w-xl lg:max-w-2xl h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+            className={`${mediaClass} h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500`}
           />
         </Link>
       );
@@ -50,33 +56,33 @@ export function ExclusiveCollection({ product, videoUrl }: ExclusiveCollectionPr
         <img
           src={mediaUrl}
           alt={product?.name || 'Exclusive Collection'}
-          className="w-full max-w-xl lg:max-w-2xl h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+          className={`${mediaClass} h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500`}
         />
       </Link>
     );
   };
 
   return (
-    <section className="py-16 md:py-24 bg-background relative overflow-hidden min-h-[90vh] flex flex-col">
+    <section className={`bg-background relative overflow-hidden flex flex-col ${isMobile ? 'py-12 min-h-[70vh]' : 'py-16 md:py-24 min-h-[90vh]'}`}>
       <div className="container-store relative z-10 flex-1 flex flex-col">
         {/* Centered Media */}
-        <div className="flex-1 flex items-center justify-center py-8">
+        <div className={`flex-1 flex items-center justify-center ${isMobile ? 'py-4' : 'py-8'}`}>
           {renderMedia()}
         </div>
 
         {/* Bottom Content - Title left, Description right */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8 pb-8">
+        <div className={`flex flex-col gap-4 ${isMobile ? 'pb-4' : 'md:flex-row md:items-end md:justify-between gap-6 md:gap-8 pb-8'}`}>
           {/* Left - Title */}
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground italic">Introducing</p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display text-foreground">
+          <div className="space-y-1">
+            <p className={`text-muted-foreground italic ${isMobile ? 'text-xs' : 'text-sm'}`}>Introducing</p>
+            <h2 className={`font-display text-foreground ${isMobile ? 'text-2xl' : 'text-3xl md:text-4xl lg:text-5xl'}`}>
               Exclusive Collections
             </h2>
           </div>
 
           {/* Right - Description */}
-          <div className="max-w-sm md:max-w-md md:text-right">
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+          <div className={`${isMobile ? 'max-w-full' : 'max-w-sm md:max-w-md md:text-right'}`}>
+            <p className={`text-muted-foreground leading-relaxed ${isMobile ? 'text-xs' : 'text-sm md:text-base'}`}>
               We make things that work better and last longer. Our products solve real problems with clean design and honest materials.
             </p>
           </div>
