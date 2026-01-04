@@ -149,7 +149,7 @@ export default function Shop() {
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">Shop</h1>
           <p className="text-muted-foreground">
-            Discover our collection of premium products
+            Discover our collection of premium designs
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export default function Shop() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search products..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
