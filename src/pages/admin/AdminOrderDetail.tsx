@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, Loader2, Package } from 'lucide-react';
+import { ArrowLeft, Loader2, Package, Truck, ExternalLink, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import type { OrderStatus, PaymentStatus } from '@/types/store';
 
@@ -37,6 +38,8 @@ const paymentStatusColors: Record<string, string> = {
 const AdminOrderDetail = () => {
   const { orderId } = useParams();
   const queryClient = useQueryClient();
+  const [isShippingLoading, setIsShippingLoading] = useState(false);
+  const [isAwbLoading, setIsAwbLoading] = useState(false);
 
   const { data: order, isLoading } = useQuery({
     queryKey: ['admin-order', orderId],
@@ -81,6 +84,50 @@ const AdminOrderDetail = () => {
     },
   });
 
+  const handleShipWithShiprocket = async () => {
+    if (!orderId) return;
+    
+    setIsShippingLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('shiprocket-create-order', {
+        body: { order_id: orderId },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      toast.success('Order sent to Shiprocket successfully!');
+      queryClient.invalidateQueries({ queryKey: ['admin-order', orderId] });
+    } catch (error: any) {
+      console.error('Shiprocket error:', error);
+      toast.error(error.message || 'Failed to create Shiprocket order');
+    } finally {
+      setIsShippingLoading(false);
+    }
+  };
+
+  const handleGenerateAwb = async () => {
+    if (!orderId) return;
+    
+    setIsAwbLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('shiprocket-generate-awb', {
+        body: { order_id: orderId },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      toast.success(`AWB generated: ${data.awb_code}`);
+      queryClient.invalidateQueries({ queryKey: ['admin-order', orderId] });
+    } catch (error: any) {
+      console.error('AWB generation error:', error);
+      toast.error(error.message || 'Failed to generate AWB');
+    } finally {
+      setIsAwbLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -114,6 +161,10 @@ const AdminOrderDetail = () => {
     postal_code: string;
     phone?: string;
   };
+
+  const canShipWithShiprocket = order.payment_status === 'paid' && !order.shiprocket_order_id;
+  const canGenerateAwb = order.shiprocket_order_id && !order.awb_code;
+  const hasShiprocketData = order.shiprocket_order_id || order.awb_code;
 
   return (
     <AdminLayout>
@@ -248,6 +299,113 @@ const AdminOrderDetail = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Shiprocket Integration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5" />
+                  Shiprocket Shipping
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Action Buttons */}
+                {canShipWithShiprocket && (
+                  <Button 
+                    onClick={handleShipWithShiprocket} 
+                    disabled={isShippingLoading}
+                    className="w-full"
+                  >
+                    {isShippingLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Order...
+                      </>
+                    ) : (
+                      <>
+                        <Truck className="mr-2 h-4 w-4" />
+                        Ship with Shiprocket
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {canGenerateAwb && (
+                  <Button 
+                    onClick={handleGenerateAwb} 
+                    disabled={isAwbLoading}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    {isAwbLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating AWB...
+                      </>
+                    ) : (
+                      <>
+                        <Package className="mr-2 h-4 w-4" />
+                        Generate AWB
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {/* Shiprocket Details */}
+                {hasShiprocketData && (
+                  <div className="space-y-3 text-sm">
+                    {order.shiprocket_order_id && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Shiprocket Order ID</span>
+                        <span className="font-medium">{order.shiprocket_order_id}</span>
+                      </div>
+                    )}
+                    {order.shiprocket_shipment_id && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Shipment ID</span>
+                        <span className="font-medium">{order.shiprocket_shipment_id}</span>
+                      </div>
+                    )}
+                    {order.awb_code && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">AWB Code</span>
+                        <span className="font-medium">{order.awb_code}</span>
+                      </div>
+                    )}
+                    {order.courier_name && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Courier</span>
+                        <Badge variant="secondary">{order.courier_name}</Badge>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Track Shipment Button */}
+                {order.tracking_url && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    asChild
+                  >
+                    <a href={order.tracking_url} target="_blank" rel="noopener noreferrer">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Track Shipment
+                      <ExternalLink className="ml-2 h-3 w-3" />
+                    </a>
+                  </Button>
+                )}
+
+                {/* No Shiprocket data yet */}
+                {!hasShiprocketData && !canShipWithShiprocket && (
+                  <p className="text-sm text-muted-foreground text-center py-2">
+                    {order.payment_status !== 'paid' 
+                      ? 'Payment must be completed before shipping'
+                      : 'Shiprocket shipping not available'}
+                  </p>
+                )}
               </CardContent>
             </Card>
 

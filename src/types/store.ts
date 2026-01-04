@@ -90,6 +90,12 @@ export interface Order {
   created_at: string;
   updated_at: string;
   items?: OrderItem[];
+  // Shiprocket shipping fields
+  shiprocket_order_id?: string;
+  shiprocket_shipment_id?: string;
+  awb_code?: string;
+  courier_name?: string;
+  tracking_url?: string;
 }
 
 export interface OrderItem {

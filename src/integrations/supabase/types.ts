@@ -211,7 +211,9 @@ export type Database = {
       }
       orders: {
         Row: {
+          awb_code: string | null
           billing_address: Json | null
+          courier_name: string | null
           created_at: string
           email: string
           id: string
@@ -222,14 +224,19 @@ export type Database = {
           razorpay_payment_id: string | null
           shipping_address: Json
           shipping_amount: number
+          shiprocket_order_id: string | null
+          shiprocket_shipment_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total: number
+          tracking_url: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          awb_code?: string | null
           billing_address?: Json | null
+          courier_name?: string | null
           created_at?: string
           email: string
           id?: string
@@ -240,14 +247,19 @@ export type Database = {
           razorpay_payment_id?: string | null
           shipping_address: Json
           shipping_amount?: number
+          shiprocket_order_id?: string | null
+          shiprocket_shipment_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          awb_code?: string | null
           billing_address?: Json | null
+          courier_name?: string | null
           created_at?: string
           email?: string
           id?: string
@@ -258,9 +270,12 @@ export type Database = {
           razorpay_payment_id?: string | null
           shipping_address?: Json
           shipping_amount?: number
+          shiprocket_order_id?: string | null
+          shiprocket_shipment_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
