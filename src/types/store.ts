@@ -37,6 +37,7 @@ export interface ProductVariant {
   price?: number;
   stock_quantity: number;
   options?: Record<string, string>;
+  image_url?: string | null;
   created_at: string;
 }
 

@@ -9,17 +9,16 @@ import { cn } from '@/lib/utils';
 
 interface ProductInfoProps {
   product: Product;
+  selectedVariant: ProductVariant | null;
+  onVariantChange: (variant: ProductVariant | null) => void;
 }
 
-export function ProductInfo({ product }: ProductInfoProps) {
+export function ProductInfo({ product, selectedVariant, onVariantChange }: ProductInfoProps) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const toggleWishlist = useToggleWishlist();
   const isInWishlist = useIsInWishlist(product.id);
   
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    product.variants?.[0] || null
-  );
   const [quantity, setQuantity] = useState(1);
 
   const currentPrice = selectedVariant?.price ?? product.price;
@@ -102,7 +101,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             {product.variants.map(variant => (
               <button
                 key={variant.id}
-                onClick={() => setSelectedVariant(variant)}
+                onClick={() => onVariantChange(variant)}
                 className={cn(
                   "px-4 py-2 rounded-md border text-sm font-medium transition-colors",
                   selectedVariant?.id === variant.id
