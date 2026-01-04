@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ScrollableCategorySectionProps {
   title: string;
@@ -14,8 +15,65 @@ interface ScrollableCategorySectionProps {
 }
 
 export function ScrollableCategorySection({ title, categorySlug, products }: ScrollableCategorySectionProps) {
+  const isMobile = useIsMobile();
+
   if (!products || products.length === 0) return null;
 
+  // Mobile: Show 4 products in 2x2 grid
+  if (isMobile) {
+    return (
+      <section className="py-10">
+        <div className="container-store">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-display text-foreground">
+              {title}
+            </h2>
+            {categorySlug && (
+              <Link 
+                to={`/shop?category=${categorySlug}`}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                View all
+              </Link>
+            )}
+          </div>
+
+          {/* 2x2 Grid for Mobile */}
+          <div className="grid grid-cols-2 gap-3">
+            {products.slice(0, 4).map(product => {
+              const imageUrl = product.images?.[0] || '/placeholder.svg';
+              return (
+                <Link
+                  key={product.id}
+                  to={`/product/${product.slug}`}
+                  className="group block"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-secondary">
+                    <img
+                      src={imageUrl}
+                      alt={product.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="mt-2 space-y-0.5">
+                    <h3 className="text-xs text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Rs. {product.price.toLocaleString('en-IN')}.00
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Desktop: Horizontal scrollable layout
   return (
     <section className="py-12 md:py-16">
       <div className="container-store">

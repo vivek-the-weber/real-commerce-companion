@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface HeroProduct {
   id: string;
@@ -17,6 +18,7 @@ interface HeroSectionProps {
 export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSectionProps) {
   const leftProduct = products?.[0];
   const rightProduct = products?.[1];
+  const isMobile = useIsMobile();
 
   // Check if URL is a video
   const isVideo = (url?: string) => {
@@ -27,13 +29,17 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
   const renderMedia = (
     product: HeroProduct | undefined,
     videoUrl: string | undefined,
-    animationClass: string
+    animationClass: string,
+    mobileClass?: string
   ) => {
     const mediaUrl = videoUrl || product?.images?.[0];
+    const sizeClass = isMobile 
+      ? (mobileClass || 'w-[42vw]') 
+      : 'w-80 md:w-96 lg:w-[550px] xl:w-[650px]';
     
     if (!mediaUrl) {
       return (
-        <div className={`w-80 md:w-96 lg:w-[550px] xl:w-[650px] aspect-[3/4] bg-secondary/20 rounded-lg ${animationClass}`} />
+        <div className={`${sizeClass} aspect-[3/4] bg-secondary/20 rounded-lg ${animationClass}`} />
       );
     }
 
@@ -48,7 +54,7 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
             loop
             muted
             playsInline
-            className={`w-80 md:w-96 lg:w-[550px] xl:w-[650px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+            className={`${sizeClass} h-auto object-contain ${animationClass} drop-shadow-2xl`}
           />
         </Link>
       );
@@ -59,12 +65,49 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
         <img
           src={mediaUrl}
           alt={product?.name || 'Product'}
-          className={`w-80 md:w-96 lg:w-[550px] xl:w-[650px] h-auto object-contain ${animationClass} drop-shadow-2xl`}
+          className={`${sizeClass} h-auto object-contain ${animationClass} drop-shadow-2xl`}
         />
       </Link>
     );
   };
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <section className="relative min-h-[85vh] bg-background flex flex-col items-center justify-center py-8 overflow-x-clip">
+        {/* Products side by side */}
+        <div className="flex items-center justify-center gap-2 relative w-full px-4">
+          <div className="flex-shrink-0">
+            {renderMedia(leftProduct, leftVideoUrl, 'animate-float', 'w-[42vw]')}
+          </div>
+          <div className="flex-shrink-0">
+            {renderMedia(rightProduct, rightVideoUrl, 'animate-float-delayed', 'w-[42vw]')}
+          </div>
+        </div>
+
+        {/* Centered Content Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="text-center space-y-4 pointer-events-auto px-4">
+            <h1 className="text-4xl font-display text-foreground">
+              New arrivals
+            </h1>
+            <p className="text-xs text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
+              Made with care and unconditionally loved by our customers.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-6 py-5 text-xs font-medium tracking-wide"
+            >
+              <Link to="/shop">Shop Now</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Desktop Layout
   return (
     <section className="relative min-h-screen bg-background flex items-center py-8 overflow-x-clip">
       <div className="w-full relative z-10">
