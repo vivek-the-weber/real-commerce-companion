@@ -34,7 +34,7 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
   ) => {
     const mediaUrl = videoUrl || product?.images?.[0];
     const sizeClass = isMobile 
-      ? (mobileClass || 'w-[42vw]') 
+      ? (mobileClass || 'w-[48vw]') 
       : 'w-80 md:w-96 lg:w-[550px] xl:w-[650px]';
     
     if (!mediaUrl) {
@@ -76,12 +76,12 @@ export function HeroSection({ products, leftVideoUrl, rightVideoUrl }: HeroSecti
     return (
       <section className="relative min-h-[85vh] bg-background flex flex-col items-center justify-center py-8 overflow-x-clip">
         {/* Products side by side */}
-        <div className="flex items-center justify-center gap-2 relative w-full px-4">
+        <div className="flex items-center justify-center gap-1 relative w-full px-2">
           <div className="flex-shrink-0">
-            {renderMedia(leftProduct, leftVideoUrl, 'animate-float', 'w-[42vw]')}
+            {renderMedia(leftProduct, leftVideoUrl, 'animate-float', 'w-[48vw]')}
           </div>
           <div className="flex-shrink-0">
-            {renderMedia(rightProduct, rightVideoUrl, 'animate-float-delayed', 'w-[42vw]')}
+            {renderMedia(rightProduct, rightVideoUrl, 'animate-float-delayed', 'w-[48vw]')}
           </div>
         </div>
 
