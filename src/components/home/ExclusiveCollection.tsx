@@ -25,7 +25,7 @@ export function ExclusiveCollection({ product, videoUrl }: ExclusiveCollectionPr
 
   const renderMedia = () => {
     const mediaClass = isMobile 
-      ? 'w-full max-w-[280px]' 
+      ? 'w-full max-w-[85vw]' 
       : 'w-full max-w-xl lg:max-w-2xl';
 
     if (!mediaUrl) {
