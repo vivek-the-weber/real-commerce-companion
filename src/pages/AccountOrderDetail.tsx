@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, ArrowLeft, Package } from 'lucide-react';
+import { Loader2, ArrowLeft, Package, Clock } from 'lucide-react';
+import OrderTracking from '@/components/account/OrderTracking';
 import { format } from 'date-fns';
 
 const statusColors: Record<string, string> = {
@@ -152,6 +153,24 @@ const AccountOrderDetail = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Shipment Tracking Section */}
+        {order.awb_code ? (
+          <OrderTracking
+            awbCode={order.awb_code}
+            courierName={order.courier_name}
+            trackingUrl={order.tracking_url}
+          />
+        ) : order.status !== 'cancelled' && order.payment_status === 'paid' && (
+          <Card>
+            <CardContent className="py-6">
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Clock className="h-5 w-5" />
+                <p className="text-sm">Your order is being prepared for shipping. Tracking information will be available once shipped.</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AccountLayout>
   );
