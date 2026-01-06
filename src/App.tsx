@@ -27,6 +27,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminImport from "./pages/admin/AdminImport";
 import NotFound from "./pages/NotFound";
 import LogoDisplay from "./pages/LogoDisplay";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/import" element={<AdminImport />} />
               <Route path="/auraedge-logo-image-display" element={<LogoDisplay />} />
+              <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
