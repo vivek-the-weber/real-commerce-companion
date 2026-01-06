@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
+
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -26,7 +26,7 @@ export default function Shop() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.get('categories')?.split(',').filter(Boolean) || []
   );
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -45,10 +45,6 @@ export default function Shop() {
       );
     }
 
-    // Filter by price
-    filtered = filtered.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
-    );
 
     // Sort
     switch (sortBy) {
@@ -67,7 +63,7 @@ export default function Shop() {
     }
 
     return filtered;
-  }, [products, selectedCategories, priceRange, sortBy]);
+  }, [products, selectedCategories, sortBy]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,12 +85,11 @@ export default function Shop() {
 
   const clearFilters = () => {
     setSelectedCategories([]);
-    setPriceRange([0, 50000]);
     setSearchQuery('');
     setSearchParams({});
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 50000;
+  const hasActiveFilters = selectedCategories.length > 0;
 
   const FiltersContent = () => (
     <div className="space-y-6">
@@ -117,21 +112,6 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* Price Range */}
-      <div>
-        <h3 className="font-semibold mb-3">Price Range</h3>
-        <Slider
-          value={priceRange}
-          onValueChange={(value) => setPriceRange(value as [number, number])}
-          max={50000}
-          step={100}
-          className="mb-2"
-        />
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>₹{priceRange[0].toLocaleString()}</span>
-          <span>₹{priceRange[1].toLocaleString()}</span>
-        </div>
-      </div>
 
       {hasActiveFilters && (
         <Button variant="outline" onClick={clearFilters} className="w-full">
@@ -177,7 +157,7 @@ export default function Shop() {
                   Filters
                   {hasActiveFilters && (
                     <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
-                      {selectedCategories.length + (priceRange[0] > 0 || priceRange[1] < 50000 ? 1 : 0)}
+                      {selectedCategories.length}
                     </span>
                   )}
                 </Button>
