@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.verify-razorpay-payment]
 verify_jwt = false
 
+[functions.handle-payment-failure]
+verify_jwt = false
+
 [functions.import-shopify-products]
 verify_jwt = false
 
