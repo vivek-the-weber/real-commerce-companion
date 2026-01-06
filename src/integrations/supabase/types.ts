@@ -433,6 +433,7 @@ export type Database = {
           flat_shipping_rate: number
           free_shipping_threshold: number | null
           id: string
+          pickup_pincode: string | null
           razorpay_key_id: string | null
           store_email: string | null
           store_name: string
@@ -445,6 +446,7 @@ export type Database = {
           flat_shipping_rate?: number
           free_shipping_threshold?: number | null
           id?: string
+          pickup_pincode?: string | null
           razorpay_key_id?: string | null
           store_email?: string | null
           store_name?: string
@@ -457,6 +459,7 @@ export type Database = {
           flat_shipping_rate?: number
           free_shipping_threshold?: number | null
           id?: string
+          pickup_pincode?: string | null
           razorpay_key_id?: string | null
           store_email?: string | null
           store_name?: string

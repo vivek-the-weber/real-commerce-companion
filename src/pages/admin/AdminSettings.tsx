@@ -17,6 +17,7 @@ const AdminSettings = () => {
     store_phone: '',
     flat_shipping_rate: '',
     free_shipping_threshold: '',
+    pickup_pincode: '',
   });
 
   const { data: settings, isLoading } = useQuery({
@@ -40,6 +41,7 @@ const AdminSettings = () => {
         store_phone: settings.store_phone || '',
         flat_shipping_rate: settings.flat_shipping_rate?.toString() || '0',
         free_shipping_threshold: settings.free_shipping_threshold?.toString() || '',
+        pickup_pincode: (settings as any).pickup_pincode || '400001',
       });
     }
   }, [settings]);
@@ -54,6 +56,7 @@ const AdminSettings = () => {
         free_shipping_threshold: formData.free_shipping_threshold 
           ? parseFloat(formData.free_shipping_threshold) 
           : null,
+        pickup_pincode: formData.pickup_pincode || '400001',
       };
 
       if (settings?.id) {
@@ -80,6 +83,10 @@ const AdminSettings = () => {
     e.preventDefault();
     if (!formData.store_name) {
       toast.error('Store name is required');
+      return;
+    }
+    if (formData.pickup_pincode && !/^\d{6}$/.test(formData.pickup_pincode)) {
+      toast.error('Pickup pincode must be 6 digits');
       return;
     }
     saveMutation.mutate();
@@ -141,11 +148,24 @@ const AdminSettings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Shipping</CardTitle>
-              <CardDescription>Configure shipping rates</CardDescription>
+              <CardDescription>Configure shipping rates and pickup location</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="flat_shipping_rate">Flat Shipping Rate (₹)</Label>
+                <Label htmlFor="pickup_pincode">Pickup Pincode (Warehouse)</Label>
+                <Input
+                  id="pickup_pincode"
+                  value={formData.pickup_pincode}
+                  onChange={(e) => setFormData({ ...formData, pickup_pincode: e.target.value })}
+                  placeholder="400001"
+                  maxLength={6}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your warehouse/store pincode for Shiprocket rate calculations.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="flat_shipping_rate">Fallback Shipping Rate (₹)</Label>
                 <Input
                   id="flat_shipping_rate"
                   type="number"
@@ -154,6 +174,9 @@ const AdminSettings = () => {
                   placeholder="50"
                   min="0"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Used when Shiprocket rates are unavailable.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="free_shipping_threshold">Free Shipping Threshold (₹)</Label>

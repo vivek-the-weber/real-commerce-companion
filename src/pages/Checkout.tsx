@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StoreLayout } from '@/components/layout/StoreLayout';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStoreSettings, useCreateOrder } from '@/hooks/useOrders';
+import { useShippingRates } from '@/hooks/useShippingRates';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { ShoppingBag, Loader2, CreditCard, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Loader2, CreditCard, CheckCircle, Truck, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 declare global {
@@ -55,10 +56,40 @@ export default function Checkout() {
     country: 'India',
   });
 
-  const shippingAmount = settings?.free_shipping_threshold && subtotal >= settings.free_shipping_threshold
-    ? 0
-    : settings?.flat_shipping_rate || 0;
+  // Use shipping rates hook
+  const {
+    cheapestRate,
+    fastestOption,
+    isLoading: isLoadingRates,
+    error: ratesError,
+    isServiceable,
+    isFallback,
+  } = useShippingRates(
+    address.postal_code,
+    items.map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      product: item.product ? { weight: item.product.weight } : null,
+    })),
+    items.length > 0
+  );
 
+  // Calculate shipping amount
+  const getShippingAmount = () => {
+    // Check free shipping threshold first
+    if (settings?.free_shipping_threshold && subtotal >= settings.free_shipping_threshold) {
+      return 0;
+    }
+    
+    // Use Shiprocket rate if available, otherwise fall back to flat rate
+    if (cheapestRate !== null) {
+      return cheapestRate;
+    }
+    
+    return settings?.flat_shipping_rate || 0;
+  };
+
+  const shippingAmount = getShippingAmount();
   const total = subtotal + shippingAmount;
 
   const handleAddressChange = (field: keyof AddressForm, value: string) => {
@@ -83,6 +114,14 @@ export default function Checkout() {
     }
     if (!/\S+@\S+\.\S+/.test(address.email)) {
       toast.error('Please enter a valid email address');
+      return false;
+    }
+    if (!/^\d{6}$/.test(address.postal_code)) {
+      toast.error('Please enter a valid 6-digit pincode');
+      return false;
+    }
+    if (!isServiceable) {
+      toast.error('Delivery is not available to this pincode');
       return false;
     }
     return true;
@@ -399,7 +438,39 @@ export default function Checkout() {
                       value={address.postal_code}
                       onChange={(e) => handleAddressChange('postal_code', e.target.value)}
                       placeholder="400001"
+                      maxLength={6}
                     />
+                    {/* Shipping Rate Display */}
+                    {address.postal_code.length === 6 && (
+                      <div className="mt-2">
+                        {isLoadingRates ? (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            <span>Checking delivery...</span>
+                          </div>
+                        ) : !isServiceable ? (
+                          <div className="flex items-center gap-2 text-sm text-destructive">
+                            <AlertCircle className="h-3 w-3" />
+                            <span>Delivery not available to this pincode</span>
+                          </div>
+                        ) : cheapestRate !== null ? (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Truck className="h-3 w-3" />
+                            <span>
+                              {settings?.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? (
+                                <span className="text-accent">Free shipping!</span>
+                              ) : (
+                                <>
+                                  Shipping: ₹{cheapestRate}
+                                  {fastestOption && ` (${fastestOption.estimated_delivery_days} days)`}
+                                  {isFallback && ' (standard)'}
+                                </>
+                              )}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -417,8 +488,16 @@ export default function Checkout() {
                   size="lg"
                   className="w-full mt-6"
                   onClick={handleContinueToPayment}
+                  disabled={isLoadingRates || !isServiceable}
                 >
-                  Continue to Payment
+                  {isLoadingRates ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Checking delivery...
+                    </>
+                  ) : (
+                    'Continue to Payment'
+                  )}
                 </Button>
               </div>
             )}
@@ -522,13 +601,23 @@ export default function Checkout() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
                   <span>
-                    {shippingAmount === 0 ? (
+                    {isLoadingRates && address.postal_code.length === 6 ? (
+                      <span className="text-muted-foreground">Calculating...</span>
+                    ) : shippingAmount === 0 ? (
                       <span className="text-accent">Free</span>
                     ) : (
                       `₹${shippingAmount.toLocaleString()}`
                     )}
                   </span>
                 </div>
+                {fastestOption && !isFallback && address.postal_code.length === 6 && isServiceable && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Delivery</span>
+                    <span className="text-muted-foreground">
+                      {fastestOption.courier_name} ({fastestOption.estimated_delivery_days} days)
+                    </span>
+                  </div>
+                )}
               </div>
 
               <Separator className="my-4" />
