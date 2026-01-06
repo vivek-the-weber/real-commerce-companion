@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { ShoppingBag, User, Menu, Search, X } from 'lucide-react';
-import logo from '@/assets/logo.png';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,7 +72,7 @@ export function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img 
-              src={logo} 
+              src="/auraedge-logo-image" 
               alt="AURAEDGE" 
               className="h-12 md:h-16 w-auto"
             />
