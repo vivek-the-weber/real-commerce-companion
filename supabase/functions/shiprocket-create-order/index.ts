@@ -6,9 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-async function getShiprocketToken(): Promise<string> {
+async function getShiprocketToken(): Promise<string | null> {
   const email = Deno.env.get('SHIPROCKET_EMAIL');
   const password = Deno.env.get('SHIPROCKET_PASSWORD');
+
+  if (!email || !password) {
+    console.error('Shiprocket credentials not configured');
+    return null;
+  }
 
   const response = await fetch('https://apiv2.shiprocket.in/v1/external/auth/login', {
     method: 'POST',
@@ -17,7 +22,10 @@ async function getShiprocketToken(): Promise<string> {
   });
 
   const data = await response.json();
-  if (!response.ok) throw new Error(data.message || 'Authentication failed');
+  if (!response.ok) {
+    console.error('Shiprocket auth failed:', data);
+    return null;
+  }
   return data.token;
 }
 
@@ -56,6 +64,33 @@ serve(async (req) => {
 
     // Get Shiprocket token
     const token = await getShiprocketToken();
+
+    // If Shiprocket auth fails, still mark order as processing but skip Shiprocket
+    if (!token) {
+      console.log('Shiprocket auth failed, updating order status without Shiprocket integration');
+      
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ status: 'processing' })
+        .eq('id', order_id);
+
+      if (updateError) {
+        console.error('Failed to update order status:', updateError);
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          shiprocket_order_id: null,
+          shiprocket_shipment_id: null,
+          message: 'Order processed without Shiprocket - credentials not configured or invalid',
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 
+        }
+      );
+    }
 
     // Parse shipping address
     const shippingAddress = order.shipping_address as {
