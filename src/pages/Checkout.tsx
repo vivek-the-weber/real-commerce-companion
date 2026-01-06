@@ -204,6 +204,25 @@ export default function Checkout() {
         return;
       }
 
+      // Helper to handle payment failure
+      const handlePaymentFailure = async (
+        paymentId?: string,
+        reason: string = 'Payment failed'
+      ) => {
+        try {
+          await supabase.functions.invoke('handle-payment-failure', {
+            body: {
+              order_id: order.id,
+              razorpay_order_id: razorpayData.razorpay_order_id,
+              razorpay_payment_id: paymentId || null,
+              failure_reason: reason,
+            },
+          });
+        } catch (err) {
+          console.error('Failed to mark order as failed:', err);
+        }
+      };
+
       const options = {
         key: razorpayData.razorpay_key_id,
         amount: razorpayData.amount,
@@ -219,9 +238,17 @@ export default function Checkout() {
         theme: {
           color: '#d97706',
         },
+        modal: {
+          ondismiss: async function () {
+            // User closed the payment modal without completing
+            await handlePaymentFailure(undefined, 'Payment cancelled by user');
+            toast.info('Payment cancelled. Order has been marked as failed.');
+            navigate('/cart');
+          },
+        },
         handler: async function (response: any) {
-          // Verify payment via edge function
-          const { error: verifyError } = await supabase.functions.invoke(
+          // Verify payment via edge function (also creates Shiprocket order automatically)
+          const { data, error: verifyError } = await supabase.functions.invoke(
             'verify-razorpay-payment',
             {
               body: {
@@ -235,11 +262,15 @@ export default function Checkout() {
 
           if (verifyError) {
             console.error('Payment verification error:', verifyError);
-            toast.error('Payment verification failed. Please contact support.');
+            // Mark order as failed if verification fails
+            await handlePaymentFailure(response.razorpay_payment_id, 'Payment verification failed');
+            toast.error('Payment verification failed. Order has been cancelled.');
+            navigate('/cart');
             return;
           }
 
-          // Payment successful
+          // Payment successful - order is now paid and Shiprocket order created
+          console.log('Payment verified, Shiprocket result:', data);
           await clearCart();
           setOrderId(order.id);
           setStep('success');
@@ -247,8 +278,13 @@ export default function Checkout() {
       };
 
       const razorpay = new window.Razorpay(options);
-      razorpay.on('payment.failed', function () {
-        toast.error('Payment failed. Please try again.');
+      razorpay.on('payment.failed', async function (response: any) {
+        // Mark order as failed with payment details
+        const paymentId = response?.error?.metadata?.payment_id;
+        const errorDescription = response?.error?.description || 'Payment failed';
+        await handlePaymentFailure(paymentId, errorDescription);
+        toast.error('Payment failed. Order has been cancelled.');
+        navigate('/cart');
       });
       razorpay.open();
     } catch (error) {
