@@ -87,7 +87,19 @@ serve(async (req) => {
     const authData = await authResponse.json();
     if (!authResponse.ok || !authData.token) {
       console.error('Shiprocket auth failed:', authData);
-      throw new Error('Shiprocket authentication failed');
+      // Return fallback rate gracefully instead of throwing error
+      return new Response(
+        JSON.stringify({
+          success: true,
+          serviceable: true,
+          rates: [],
+          cheapest_rate: fallbackRate,
+          fastest_option: null,
+          fallback: true,
+          fallback_reason: 'Shiprocket authentication failed',
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const token = authData.token;
