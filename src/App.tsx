@@ -26,6 +26,7 @@ import AdminInventory from "./pages/admin/AdminInventory";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminImport from "./pages/admin/AdminImport";
 import NotFound from "./pages/NotFound";
+import LogoDisplay from "./pages/LogoDisplay";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/admin/inventory" element={<AdminInventory />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/import" element={<AdminImport />} />
+              <Route path="/auraedge-logo-image-display" element={<LogoDisplay />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
