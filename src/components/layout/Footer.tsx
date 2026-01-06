@@ -16,7 +16,7 @@ export function Footer() {
 
           {/* Social */}
           <a 
-            href="https://instagram.com" 
+            href="https://instagram.com/_aura.edge/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors"
