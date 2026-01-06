@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, User, Menu, Search, X } from 'lucide-react';
+import { ShoppingBag, User, Menu, Search, X, Heart } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,17 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useCategories } from '@/hooks/useProducts';
+import { useWishlist } from '@/hooks/useWishlist';
 
 export function Header() {
   const { user, isAdmin } = useAuth();
   const { itemCount } = useCart();
   const { data: categories } = useCategories();
+  const { data: wishlistItems } = useWishlist();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const wishlistCount = wishlistItems?.length || 0;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +116,18 @@ export function Header() {
                 <Search className="h-5 w-5" />
               </Button>
             )}
+
+            {/* Wishlist */}
+            <Link to="/wishlist">
+              <Button variant="ghost" size="icon" className="relative text-foreground hover:text-foreground/80">
+                <Heart className="h-5 w-5" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] font-medium flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
 
             {/* Account */}
             <Link to={user ? "/account" : "/auth"}>

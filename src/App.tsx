@@ -28,7 +28,7 @@ import AdminImport from "./pages/admin/AdminImport";
 import NotFound from "./pages/NotFound";
 import LogoDisplay from "./pages/LogoDisplay";
 import Terms from "./pages/Terms";
-
+import Wishlist from "./pages/Wishlist";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -50,6 +50,7 @@ const App = () => (
               <Route path="/account/orders" element={<AccountOrders />} />
               <Route path="/account/orders/:orderId" element={<AccountOrderDetail />} />
               <Route path="/account/addresses" element={<AccountAddresses />} />
+              <Route path="/wishlist" element={<Wishlist />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/products" element={<AdminProducts />} />

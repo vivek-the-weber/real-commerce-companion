@@ -3,7 +3,7 @@ import { Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { StoreLayout } from '@/components/layout/StoreLayout';
 import { cn } from '@/lib/utils';
-import { User, Package, MapPin, LogOut, Loader2 } from 'lucide-react';
+import { User, Package, MapPin, Heart, LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AccountLayoutProps {
@@ -14,6 +14,7 @@ const navItems = [
   { href: '/account', label: 'Profile', icon: User },
   { href: '/account/orders', label: 'Orders', icon: Package },
   { href: '/account/addresses', label: 'Addresses', icon: MapPin },
+  { href: '/wishlist', label: 'Wishlist', icon: Heart },
 ];
 
 const AccountLayout = ({ children }: AccountLayoutProps) => {
