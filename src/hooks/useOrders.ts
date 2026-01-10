@@ -120,18 +120,32 @@ export function useCreateOrder() {
   });
 }
 
+export interface PublicStoreSettings {
+  id: string;
+  store_name: string;
+  store_email: string | null;
+  store_phone: string | null;
+  currency: string;
+  flat_shipping_rate: number;
+  free_shipping_threshold: number | null;
+  pickup_pincode: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useStoreSettings() {
   return useQuery({
-    queryKey: ['store-settings'],
+    queryKey: ['public-store-settings'],
     queryFn: async () => {
+      // Use the public view that excludes sensitive fields like razorpay_key_id
       const { data, error } = await supabase
-        .from('store_settings')
+        .from('public_store_settings' as any)
         .select('*')
         .limit(1)
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data as unknown as PublicStoreSettings | null;
     },
   });
 }
