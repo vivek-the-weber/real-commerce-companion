@@ -520,7 +520,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_store_settings: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          flat_shipping_rate: number | null
+          free_shipping_threshold: number | null
+          id: string | null
+          pickup_pincode: string | null
+          store_email: string | null
+          store_name: string | null
+          store_phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          flat_shipping_rate?: number | null
+          free_shipping_threshold?: number | null
+          id?: string | null
+          pickup_pincode?: string | null
+          store_email?: string | null
+          store_name?: string | null
+          store_phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          flat_shipping_rate?: number | null
+          free_shipping_threshold?: number | null
+          id?: string | null
+          pickup_pincode?: string | null
+          store_email?: string | null
+          store_name?: string | null
+          store_phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
