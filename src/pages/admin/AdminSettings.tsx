@@ -20,8 +20,9 @@ const AdminSettings = () => {
     pickup_pincode: '',
   });
 
+  // Admin page uses the full store_settings table (admins have RLS access)
   const { data: settings, isLoading } = useQuery({
-    queryKey: ['store-settings'],
+    queryKey: ['admin-store-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('store_settings')
@@ -72,7 +73,8 @@ const AdminSettings = () => {
     },
     onSuccess: () => {
       toast.success('Settings saved successfully');
-      queryClient.invalidateQueries({ queryKey: ['store-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-store-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['public-store-settings'] });
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to save settings');
