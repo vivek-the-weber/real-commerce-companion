@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { StoreLayout } from '@/components/layout/StoreLayout';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useStoreSettings } from '@/hooks/useOrders';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,16 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 export default function Cart() {
   const { items, loading, updateQuantity, removeFromCart, subtotal } = useCart();
   const { data: settings } = useStoreSettings();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    if (!user) {
+      navigate('/auth');
+    } else {
+      navigate('/checkout');
+    }
+  };
 
   const shippingAmount = settings?.free_shipping_threshold && subtotal >= settings.free_shipping_threshold
     ? 0
@@ -190,11 +201,9 @@ export default function Cart() {
                 <span>₹{total.toLocaleString()}</span>
               </div>
 
-              <Button asChild size="lg" className="w-full">
-                <Link to="/checkout">
-                  Proceed to Checkout
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+              <Button size="lg" className="w-full" onClick={handleCheckout}>
+                Proceed to Checkout
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
               <div className="mt-4 text-center">
