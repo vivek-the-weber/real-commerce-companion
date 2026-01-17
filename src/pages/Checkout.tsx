@@ -11,9 +11,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { ShoppingBag, Loader2, CreditCard, CheckCircle, Truck, AlertCircle } from 'lucide-react';
+import { ShoppingBag, Loader2, CreditCard, CheckCircle, Truck, AlertCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Address } from '@/types/store';
 
 declare global {
   interface Window {
@@ -44,6 +47,12 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
 
+  // Saved addresses state
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | 'new'>('new');
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [saveNewAddress, setSaveNewAddress] = useState(false);
+
   const [address, setAddress] = useState<AddressForm>({
     full_name: '',
     email: user?.email || '',
@@ -55,6 +64,79 @@ export default function Checkout() {
     postal_code: '',
     country: 'India',
   });
+
+  // Fetch saved addresses on mount
+  useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      if (!user) {
+        setLoadingAddresses(false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('addresses')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('is_default', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setSavedAddresses(data);
+          // Auto-select default address
+          const defaultAddr = data.find(a => a.is_default) || data[0];
+          setSelectedAddressId(defaultAddr.id);
+          populateFromAddress(defaultAddr);
+        }
+      } catch (error) {
+        console.error('Error fetching addresses:', error);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    };
+
+    fetchSavedAddresses();
+  }, [user]);
+
+  const populateFromAddress = (addr: Address) => {
+    setAddress(prev => ({
+      ...prev,
+      full_name: addr.full_name,
+      phone: addr.phone || '',
+      address_line1: addr.address_line1,
+      address_line2: addr.address_line2 || '',
+      city: addr.city,
+      state: addr.state,
+      postal_code: addr.postal_code,
+      country: addr.country,
+    }));
+  };
+
+  const resetAddressForm = () => {
+    setAddress({
+      full_name: '',
+      email: user?.email || '',
+      phone: '',
+      address_line1: '',
+      address_line2: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      country: 'India',
+    });
+  };
+
+  const handleAddressSelect = (addressId: string) => {
+    setSelectedAddressId(addressId);
+    if (addressId === 'new') {
+      resetAddressForm();
+      setSaveNewAddress(false);
+    } else {
+      const selected = savedAddresses.find(a => a.id === addressId);
+      if (selected) populateFromAddress(selected);
+    }
+  };
 
   // Use shipping rates hook
   const {
@@ -127,8 +209,32 @@ export default function Checkout() {
     return true;
   };
 
-  const handleContinueToPayment = () => {
+  const handleContinueToPayment = async () => {
     if (validateAddress()) {
+      // Save address if checkbox is checked and entering new address
+      if (selectedAddressId === 'new' && saveNewAddress && user) {
+        try {
+          const isFirstAddress = savedAddresses.length === 0;
+          const { error } = await supabase.from('addresses').insert({
+            user_id: user.id,
+            full_name: address.full_name,
+            phone: address.phone,
+            address_line1: address.address_line1,
+            address_line2: address.address_line2 || null,
+            city: address.city,
+            state: address.state,
+            postal_code: address.postal_code,
+            country: address.country,
+            is_default: isFirstAddress,
+          });
+          
+          if (error) throw error;
+          toast.success('Address saved for future orders');
+        } catch (error) {
+          console.error('Error saving address:', error);
+          toast.error('Failed to save address, but continuing with checkout');
+        }
+      }
       setStep('payment');
     }
   };
@@ -394,91 +500,69 @@ export default function Checkout() {
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <Label htmlFor="full_name">Full Name *</Label>
-                    <Input
-                      id="full_name"
-                      value={address.full_name}
-                      onChange={(e) => handleAddressChange('full_name', e.target.value)}
-                      placeholder="John Doe"
-                    />
+                {/* Loading state for addresses */}
+                {loadingAddresses && user && (
+                  <div className="mb-4">
+                    <Skeleton className="h-10 w-full" />
                   </div>
+                )}
 
-                  <div>
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={address.email}
-                      onChange={(e) => handleAddressChange('email', e.target.value)}
-                      placeholder="john@example.com"
-                    />
+                {/* Address Selector - only show if user has saved addresses */}
+                {!loadingAddresses && user && savedAddresses.length > 0 && (
+                  <div className="mb-6">
+                    <Label>Select Address</Label>
+                    <Select value={selectedAddressId} onValueChange={handleAddressSelect}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a saved address" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {savedAddresses.map((addr) => (
+                          <SelectItem key={addr.id} value={addr.id}>
+                            <div className="flex items-center gap-2">
+                              {addr.is_default && <Star className="h-3 w-3 text-primary fill-primary" />}
+                              <span>{addr.full_name} - {addr.address_line1}, {addr.city}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="new">+ Use a different address</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+                )}
 
-                  <div>
-                    <Label htmlFor="phone">Phone *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={address.phone}
-                      onChange={(e) => handleAddressChange('phone', e.target.value)}
-                      placeholder="+91 98765 43210"
-                    />
-                  </div>
+                {/* Read-only view when saved address is selected */}
+                {selectedAddressId !== 'new' && savedAddresses.length > 0 && !loadingAddresses && (
+                  <div className="bg-muted/50 rounded-lg p-4 mb-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium">{address.full_name}</p>
+                        <p className="text-sm text-muted-foreground">{address.phone}</p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {address.address_line1}
+                          {address.address_line2 && `, ${address.address_line2}`}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {address.city}, {address.state} {address.postal_code}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{address.country}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Email field - always editable */}
+                    <div className="mt-4">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={address.email}
+                        onChange={(e) => handleAddressChange('email', e.target.value)}
+                        placeholder="john@example.com"
+                      />
+                    </div>
 
-                  <div className="col-span-2">
-                    <Label htmlFor="address_line1">Address Line 1 *</Label>
-                    <Input
-                      id="address_line1"
-                      value={address.address_line1}
-                      onChange={(e) => handleAddressChange('address_line1', e.target.value)}
-                      placeholder="Street address, building name"
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label htmlFor="address_line2">Address Line 2</Label>
-                    <Input
-                      id="address_line2"
-                      value={address.address_line2}
-                      onChange={(e) => handleAddressChange('address_line2', e.target.value)}
-                      placeholder="Apartment, suite, unit (optional)"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="city">City *</Label>
-                    <Input
-                      id="city"
-                      value={address.city}
-                      onChange={(e) => handleAddressChange('city', e.target.value)}
-                      placeholder="Mumbai"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="state">State *</Label>
-                    <Input
-                      id="state"
-                      value={address.state}
-                      onChange={(e) => handleAddressChange('state', e.target.value)}
-                      placeholder="Maharashtra"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="postal_code">Postal Code *</Label>
-                    <Input
-                      id="postal_code"
-                      value={address.postal_code}
-                      onChange={(e) => handleAddressChange('postal_code', e.target.value)}
-                      placeholder="400001"
-                      maxLength={6}
-                    />
-                    {/* Shipping Rate Display */}
+                    {/* Shipping Rate Display for saved address */}
                     {address.postal_code.length === 6 && (
-                      <div className="mt-2">
+                      <div className="mt-4">
                         {isLoadingRates ? (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Loader2 className="h-3 w-3 animate-spin" />
@@ -508,28 +592,163 @@ export default function Checkout() {
                       </div>
                     )}
                   </div>
+                )}
 
-                  <div>
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={address.country}
-                      onChange={(e) => handleAddressChange('country', e.target.value)}
-                      disabled
-                    />
-                  </div>
-                </div>
+                {/* Address Form - show if 'new' selected or no saved addresses */}
+                {(selectedAddressId === 'new' || savedAddresses.length === 0 || loadingAddresses) && !loadingAddresses && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="col-span-2">
+                        <Label htmlFor="full_name">Full Name *</Label>
+                        <Input
+                          id="full_name"
+                          value={address.full_name}
+                          onChange={(e) => handleAddressChange('full_name', e.target.value)}
+                          placeholder="John Doe"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={address.email}
+                          onChange={(e) => handleAddressChange('email', e.target.value)}
+                          placeholder="john@example.com"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="phone">Phone *</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={address.phone}
+                          onChange={(e) => handleAddressChange('phone', e.target.value)}
+                          placeholder="+91 98765 43210"
+                        />
+                      </div>
+
+                      <div className="col-span-2">
+                        <Label htmlFor="address_line1">Address Line 1 *</Label>
+                        <Input
+                          id="address_line1"
+                          value={address.address_line1}
+                          onChange={(e) => handleAddressChange('address_line1', e.target.value)}
+                          placeholder="Street address, building name"
+                        />
+                      </div>
+
+                      <div className="col-span-2">
+                        <Label htmlFor="address_line2">Address Line 2</Label>
+                        <Input
+                          id="address_line2"
+                          value={address.address_line2}
+                          onChange={(e) => handleAddressChange('address_line2', e.target.value)}
+                          placeholder="Apartment, suite, unit (optional)"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="city">City *</Label>
+                        <Input
+                          id="city"
+                          value={address.city}
+                          onChange={(e) => handleAddressChange('city', e.target.value)}
+                          placeholder="Mumbai"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="state">State *</Label>
+                        <Input
+                          id="state"
+                          value={address.state}
+                          onChange={(e) => handleAddressChange('state', e.target.value)}
+                          placeholder="Maharashtra"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="postal_code">Postal Code *</Label>
+                        <Input
+                          id="postal_code"
+                          value={address.postal_code}
+                          onChange={(e) => handleAddressChange('postal_code', e.target.value)}
+                          placeholder="400001"
+                          maxLength={6}
+                        />
+                        {/* Shipping Rate Display */}
+                        {address.postal_code.length === 6 && (
+                          <div className="mt-2">
+                            {isLoadingRates ? (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <span>Checking delivery...</span>
+                              </div>
+                            ) : !isServiceable ? (
+                              <div className="flex items-center gap-2 text-sm text-destructive">
+                                <AlertCircle className="h-3 w-3" />
+                                <span>Delivery not available to this pincode</span>
+                              </div>
+                            ) : cheapestRate !== null ? (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Truck className="h-3 w-3" />
+                                <span>
+                                  {settings?.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? (
+                                    <span className="text-accent">Free shipping!</span>
+                                  ) : (
+                                    <>
+                                      Shipping: ₹{cheapestRate}
+                                      {fastestOption && ` (${fastestOption.estimated_delivery_days} days)`}
+                                      {isFallback && ' (standard)'}
+                                    </>
+                                  )}
+                                </span>
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="country">Country</Label>
+                        <Input
+                          id="country"
+                          value={address.country}
+                          onChange={(e) => handleAddressChange('country', e.target.value)}
+                          disabled
+                        />
+                      </div>
+                    </div>
+
+                    {/* Save address checkbox - only for logged in users entering new address */}
+                    {user && selectedAddressId === 'new' && (
+                      <div className="flex items-center space-x-2 mt-4">
+                        <Checkbox 
+                          id="save-address" 
+                          checked={saveNewAddress}
+                          onCheckedChange={(checked) => setSaveNewAddress(checked === true)}
+                        />
+                        <Label htmlFor="save-address" className="text-sm font-normal cursor-pointer">
+                          Save this address for future orders
+                        </Label>
+                      </div>
+                    )}
+                  </>
+                )}
 
                 <Button
                   size="lg"
                   className="w-full mt-6"
                   onClick={handleContinueToPayment}
-                  disabled={isLoadingRates || !isServiceable}
+                  disabled={isLoadingRates || !isServiceable || loadingAddresses}
                 >
-                  {isLoadingRates ? (
+                  {isLoadingRates || loadingAddresses ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Checking delivery...
+                      {loadingAddresses ? 'Loading...' : 'Checking delivery...'}
                     </>
                   ) : (
                     'Continue to Payment'
