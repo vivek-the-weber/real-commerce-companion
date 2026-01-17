@@ -118,7 +118,6 @@ const Terms = () => {
               </p>
               <ul className="list-disc list-inside space-y-2">
                 <li>Email: auraedge29@gmail.com</li>
-                <li>Website: www.auraedge.org</li>
               </ul>
             </div>
           </section>
