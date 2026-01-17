@@ -116,7 +116,10 @@ const Terms = () => {
               <p>
                 If you have any questions about these terms and policies, please contact us:
               </p>
-              
+              <ul className="list-disc list-inside space-y-2">
+                <li>Email: auraedge29@gmail.com</li>
+                <li>Website: www.auraedge.org</li>
+              </ul>
             </div>
           </section>
         </div>
