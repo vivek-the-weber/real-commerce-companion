@@ -1,9 +1,7 @@
 import { StoreLayout } from "@/components/layout/StoreLayout";
 import { Separator } from "@/components/ui/separator";
-
 const Terms = () => {
-  return (
-    <StoreLayout>
+  return <StoreLayout>
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-bold mb-2">Terms and Policies</h1>
         <p className="text-muted-foreground mb-8">
@@ -119,15 +117,13 @@ const Terms = () => {
                 If you have any questions about these terms and policies, please contact us:
               </p>
               <ul className="list-disc list-inside space-y-2">
-                <li>Email: support@auraedge.org</li>
+                <li>Email: auraedge29@gmail.com</li>
                 <li>Website: www.auraedge.org</li>
               </ul>
             </div>
           </section>
         </div>
       </div>
-    </StoreLayout>
-  );
+    </StoreLayout>;
 };
-
 export default Terms;
