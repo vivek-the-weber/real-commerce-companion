@@ -67,6 +67,7 @@ export function useShippingRates(
       setError(null);
       setIsServiceable(true);
       setIsFallback(false);
+      lastPincodeRef.current = ''; // Reset to allow re-fetch when pincode becomes valid again
       return;
     }
 
