@@ -30,7 +30,7 @@ interface TrysyConfig {
   order: TrysyOrder;
 }
 
-const TRYSY_SDK_URL = 'https://trysy.lovable.app/api/public/sdk.js';
+const TRYSY_SDK_URL = 'https://trysy.lovable.app/sdk.js';
 const TRYSY_STORE_ID = 'f8cde913-77d3-4544-b9b7-137797797091';
 const TRYSY_API_KEY = 'trysy_live_50TOahxTjDDfDjKwqBMDwjg0VcRVdGas';
 const TRYSY_FEE = 99;
