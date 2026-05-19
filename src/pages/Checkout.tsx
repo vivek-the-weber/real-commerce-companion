@@ -47,6 +47,7 @@ export default function Checkout() {
   const [step, setStep] = useState<'address' | 'payment' | 'success'>('address');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [trysyExternalId, setTrysyExternalId] = useState<string | null>(null);
 
   // Saved addresses state
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
