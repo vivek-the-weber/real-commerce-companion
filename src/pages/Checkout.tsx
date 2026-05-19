@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { ShoppingBag, Loader2, CreditCard, CheckCircle, Truck, AlertCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Address } from '@/types/store';
+import { TrysyCheckout } from '@/components/checkout/TrysyCheckout';
 
 declare global {
   interface Window {
