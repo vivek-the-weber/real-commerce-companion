@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { ShoppingBag, Loader2, CreditCard, CheckCircle, Truck, AlertCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Address } from '@/types/store';
+import { TrysyCheckout } from '@/components/checkout/TrysyCheckout';
 
 declare global {
   interface Window {
@@ -46,6 +47,7 @@ export default function Checkout() {
   const [step, setStep] = useState<'address' | 'payment' | 'success'>('address');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [trysyExternalId, setTrysyExternalId] = useState<string | null>(null);
 
   // Saved addresses state
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
@@ -234,6 +236,9 @@ export default function Checkout() {
           console.error('Error saving address:', error);
           toast.error('Failed to save address, but continuing with checkout');
         }
+      }
+      if (!trysyExternalId) {
+        setTrysyExternalId(`ORD_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
       }
       setStep('payment');
     }
@@ -790,6 +795,19 @@ export default function Checkout() {
                     </div>
                   </div>
                 </div>
+
+                {trysyExternalId && (
+                  <TrysyCheckout
+                    externalOrderId={trysyExternalId}
+                    totalOrderValue={Math.round(total)}
+                    products={items.map((item) => ({
+                      product_name: item.product?.name || 'Item',
+                      size: item.variant?.name,
+                      quantity: item.quantity,
+                      price: Math.round(item.variant?.price ?? item.product?.price ?? 0),
+                    }))}
+                  />
+                )}
 
                 <Button
                   size="lg"

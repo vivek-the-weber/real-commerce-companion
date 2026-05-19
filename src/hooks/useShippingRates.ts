@@ -50,7 +50,7 @@ export function useShippingRates(
   const [isServiceable, setIsServiceable] = useState(true);
   const [isFallback, setIsFallback] = useState(false);
   
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPincodeRef = useRef<string>('');
 
   useEffect(() => {
