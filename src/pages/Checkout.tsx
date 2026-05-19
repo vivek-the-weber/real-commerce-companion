@@ -237,6 +237,9 @@ export default function Checkout() {
           toast.error('Failed to save address, but continuing with checkout');
         }
       }
+      if (!trysyExternalId) {
+        setTrysyExternalId(`ORD_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+      }
       setStep('payment');
     }
   };
