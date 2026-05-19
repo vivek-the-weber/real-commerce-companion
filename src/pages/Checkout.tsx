@@ -796,6 +796,19 @@ export default function Checkout() {
                   </div>
                 </div>
 
+                {trysyExternalId && (
+                  <TrysyCheckout
+                    externalOrderId={trysyExternalId}
+                    totalOrderValue={Math.round(total)}
+                    products={items.map((item) => ({
+                      product_name: item.product?.name || 'Item',
+                      size: item.variant?.name,
+                      quantity: item.quantity,
+                      price: Math.round(item.variant?.price ?? item.product?.price ?? 0),
+                    }))}
+                  />
+                )}
+
                 <Button
                   size="lg"
                   className="w-full mt-6"
