@@ -52,6 +52,9 @@ export function useShippingRates(
   
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPincodeRef = useRef<string>('');
+  const cartItemsKey = cartItems
+    .map((item) => `${item.product_id}:${item.quantity}:${item.product?.weight ?? 'default'}`)
+    .join('|');
 
   useEffect(() => {
     // Clear previous timeout
@@ -136,7 +139,7 @@ export function useShippingRates(
         clearTimeout(debounceRef.current);
       }
     };
-  }, [pincode, cartItems, enabled]);
+  }, [pincode, cartItemsKey, enabled]);
 
   return {
     rates,
