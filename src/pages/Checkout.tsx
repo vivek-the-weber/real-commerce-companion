@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StoreLayout } from '@/components/layout/StoreLayout';
 import { useCart } from '@/contexts/CartContext';
@@ -140,6 +140,16 @@ export default function Checkout() {
     }
   };
 
+  const shippingCartItems = useMemo(
+    () =>
+      items.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product: item.product ? { weight: item.product.weight } : null,
+      })),
+    [items]
+  );
+
   // Use shipping rates hook
   const {
     cheapestRate,
@@ -150,11 +160,7 @@ export default function Checkout() {
     isFallback,
   } = useShippingRates(
     address.postal_code,
-    items.map(item => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      product: item.product ? { weight: item.product.weight } : null,
-    })),
+    shippingCartItems,
     items.length > 0
   );
 
