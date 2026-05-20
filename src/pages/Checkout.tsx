@@ -218,35 +218,36 @@ export default function Checkout() {
   };
 
   const handleContinueToPayment = async () => {
-    if (validateAddress()) {
-      // Save address if checkbox is checked and entering new address
-      if (selectedAddressId === 'new' && saveNewAddress && user) {
-        try {
-          const isFirstAddress = savedAddresses.length === 0;
-          const { error } = await supabase.from('addresses').insert({
-            user_id: user.id,
-            full_name: address.full_name,
-            phone: address.phone,
-            address_line1: address.address_line1,
-            address_line2: address.address_line2 || null,
-            city: address.city,
-            state: address.state,
-            postal_code: address.postal_code,
-            country: address.country,
-            is_default: isFirstAddress,
-          });
-          
-          if (error) throw error;
-          toast.success('Address saved for future orders');
-        } catch (error) {
-          console.error('Error saving address:', error);
-          toast.error('Failed to save address, but continuing with checkout');
-        }
+    if (!validateAddress()) return;
+
+    if (!trysyExternalId) {
+      setTrysyExternalId(`ORD_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+    }
+    setStep('payment');
+
+    // Save address if checkbox is checked and entering new address
+    if (selectedAddressId === 'new' && saveNewAddress && user) {
+      try {
+        const isFirstAddress = savedAddresses.length === 0;
+        const { error } = await supabase.from('addresses').insert({
+          user_id: user.id,
+          full_name: address.full_name,
+          phone: address.phone,
+          address_line1: address.address_line1,
+          address_line2: address.address_line2 || null,
+          city: address.city,
+          state: address.state,
+          postal_code: address.postal_code,
+          country: address.country,
+          is_default: isFirstAddress,
+        });
+        
+        if (error) throw error;
+        toast.success('Address saved for future orders');
+      } catch (error) {
+        console.error('Error saving address:', error);
+        toast.error('Failed to save address, but continuing with checkout');
       }
-      if (!trysyExternalId) {
-        setTrysyExternalId(`ORD_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
-      }
-      setStep('payment');
     }
   };
 
