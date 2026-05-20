@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StoreLayout } from '@/components/layout/StoreLayout';
 import { useCart } from '@/contexts/CartContext';
@@ -140,6 +140,16 @@ export default function Checkout() {
     }
   };
 
+  const shippingCartItems = useMemo(
+    () =>
+      items.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product: item.product ? { weight: item.product.weight } : null,
+      })),
+    [items]
+  );
+
   // Use shipping rates hook
   const {
     cheapestRate,
@@ -150,11 +160,7 @@ export default function Checkout() {
     isFallback,
   } = useShippingRates(
     address.postal_code,
-    items.map(item => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      product: item.product ? { weight: item.product.weight } : null,
-    })),
+    shippingCartItems,
     items.length > 0
   );
 
@@ -212,35 +218,36 @@ export default function Checkout() {
   };
 
   const handleContinueToPayment = async () => {
-    if (validateAddress()) {
-      // Save address if checkbox is checked and entering new address
-      if (selectedAddressId === 'new' && saveNewAddress && user) {
-        try {
-          const isFirstAddress = savedAddresses.length === 0;
-          const { error } = await supabase.from('addresses').insert({
-            user_id: user.id,
-            full_name: address.full_name,
-            phone: address.phone,
-            address_line1: address.address_line1,
-            address_line2: address.address_line2 || null,
-            city: address.city,
-            state: address.state,
-            postal_code: address.postal_code,
-            country: address.country,
-            is_default: isFirstAddress,
-          });
-          
-          if (error) throw error;
-          toast.success('Address saved for future orders');
-        } catch (error) {
-          console.error('Error saving address:', error);
-          toast.error('Failed to save address, but continuing with checkout');
-        }
+    if (!validateAddress()) return;
+
+    if (!trysyExternalId) {
+      setTrysyExternalId(`ORD_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+    }
+    setStep('payment');
+
+    // Save address if checkbox is checked and entering new address
+    if (selectedAddressId === 'new' && saveNewAddress && user) {
+      try {
+        const isFirstAddress = savedAddresses.length === 0;
+        const { error } = await supabase.from('addresses').insert({
+          user_id: user.id,
+          full_name: address.full_name,
+          phone: address.phone,
+          address_line1: address.address_line1,
+          address_line2: address.address_line2 || null,
+          city: address.city,
+          state: address.state,
+          postal_code: address.postal_code,
+          country: address.country,
+          is_default: isFirstAddress,
+        });
+        
+        if (error) throw error;
+        toast.success('Address saved for future orders');
+      } catch (error) {
+        console.error('Error saving address:', error);
+        toast.error('Failed to save address, but continuing with checkout');
       }
-      if (!trysyExternalId) {
-        setTrysyExternalId(`ORD_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
-      }
-      setStep('payment');
     }
   };
 
