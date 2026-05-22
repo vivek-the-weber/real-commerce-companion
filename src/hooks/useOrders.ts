@@ -65,6 +65,7 @@ interface CreateOrderParams {
   }>;
   subtotal: number;
   shipping_amount: number;
+  is_trysy_handled?: boolean;
 }
 
 export function useCreateOrder() {
@@ -82,6 +83,10 @@ export function useCreateOrder() {
         shipping_amount: params.shipping_amount,
         total,
       };
+
+      if (params.is_trysy_handled) {
+        orderData.is_trysy_handled = true;
+      }
 
       if (user?.id) {
         orderData.user_id = user.id;

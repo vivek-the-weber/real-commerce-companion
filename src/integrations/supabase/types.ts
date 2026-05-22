@@ -217,6 +217,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          is_trysy_handled: boolean
           notes: string | null
           order_number: string
           payment_status: Database["public"]["Enums"]["payment_status"]
@@ -240,6 +241,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          is_trysy_handled?: boolean
           notes?: string | null
           order_number: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -263,6 +265,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          is_trysy_handled?: boolean
           notes?: string | null
           order_number?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]

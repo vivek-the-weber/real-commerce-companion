@@ -101,6 +101,7 @@ export interface Order {
   awb_code?: string;
   courier_name?: string;
   tracking_url?: string;
+  is_trysy_handled?: boolean;
 }
 
 export interface OrderItem {

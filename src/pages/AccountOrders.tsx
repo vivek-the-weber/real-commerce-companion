@@ -67,9 +67,15 @@ const AccountOrders = () => {
                           <Badge className={statusColors[order.status] || ''} variant="secondary">
                             {order.status}
                           </Badge>
-                          <Badge className={paymentStatusColors[order.payment_status] || ''} variant="secondary">
-                            {order.payment_status}
-                          </Badge>
+                          {order.is_trysy_handled ? (
+                            <Badge className="bg-purple-100 text-purple-800" variant="secondary">
+                              Trysy handled
+                            </Badge>
+                          ) : (
+                            <Badge className={paymentStatusColors[order.payment_status] || ''} variant="secondary">
+                              {order.payment_status}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />

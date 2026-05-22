@@ -16,6 +16,7 @@ interface Props {
   externalOrderId: string;
   products: TrysyProduct[];
   totalOrderValue: number;
+  onSuccess?: (payload: unknown) => void;
 }
 
 declare global {
@@ -47,8 +48,10 @@ function loadTrysySdk(): Promise<void> {
   });
 }
 
-export function TrysyCheckout({ externalOrderId, products, totalOrderValue }: Props) {
+export function TrysyCheckout({ externalOrderId, products, totalOrderValue, onSuccess }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const onSuccessRef = useRef(onSuccess);
+  onSuccessRef.current = onSuccess;
 
   useEffect(() => {
     let cancelled = false;
@@ -61,8 +64,6 @@ export function TrysyCheckout({ externalOrderId, products, totalOrderValue }: Pr
           apiKey: TRYSY_API_KEY,
           mount: '#trysy-mount',
           checkoutSelector: '#pay-button',
-          successRedirectUrl: '/account/orders/{external_order_id}',
-          redirectDelayMs: 1500,
           order: {
             external_order_id: externalOrderId,
             products,
@@ -70,7 +71,7 @@ export function TrysyCheckout({ externalOrderId, products, totalOrderValue }: Pr
           },
           onSuccess: (payload: unknown) => {
             console.log('Trysy order success:', payload);
-            toast.success('Try-at-home order confirmed!');
+            onSuccessRef.current?.(payload);
           },
           onError: (err: unknown) => {
             console.warn('Trysy order failed:', err);

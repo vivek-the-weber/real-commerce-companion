@@ -813,6 +813,40 @@ export default function Checkout() {
                       quantity: item.quantity,
                       price: Math.round(item.variant?.price ?? item.product?.price ?? 0),
                     }))}
+                    onSuccess={async () => {
+                      try {
+                        const order = await createOrder.mutateAsync({
+                          email: address.email,
+                          shipping_address: {
+                            full_name: address.full_name,
+                            phone: address.phone,
+                            address_line1: address.address_line1,
+                            address_line2: address.address_line2 || undefined,
+                            city: address.city,
+                            state: address.state,
+                            postal_code: address.postal_code,
+                            country: address.country,
+                          },
+                          items: items.map((item) => ({
+                            product_id: item.product_id,
+                            variant_id: item.variant_id,
+                            product_name: item.product?.name || 'Item',
+                            variant_name: item.variant?.name,
+                            quantity: item.quantity,
+                            unit_price: item.variant?.price ?? item.product?.price ?? 0,
+                          })),
+                          subtotal,
+                          shipping_amount: shippingAmount,
+                          is_trysy_handled: true,
+                        });
+                        await clearCart();
+                        toast.success('Try-at-home order confirmed!');
+                        navigate(`/account/orders/${order.id}`);
+                      } catch (err) {
+                        console.error('Failed to record Trysy order:', err);
+                        toast.error('Order placed but failed to save. Please contact support.');
+                      }
+                    }}
                   />
                 )}
 
