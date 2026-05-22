@@ -817,6 +817,7 @@ export default function Checkout() {
                 )}
 
                 <Button
+                  id="pay-button"
                   size="lg"
                   className="w-full mt-6"
                   onClick={handlePayment}

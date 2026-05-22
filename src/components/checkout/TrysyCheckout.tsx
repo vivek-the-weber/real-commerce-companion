@@ -60,14 +60,21 @@ export function TrysyCheckout({ externalOrderId, products, totalOrderValue }: Pr
           storeId: TRYSY_STORE_ID,
           apiKey: TRYSY_API_KEY,
           mount: '#trysy-mount',
+          checkoutSelector: '#pay-button',
+          successRedirectUrl: '/account/orders?order={external_order_id}',
+          redirectDelayMs: 1500,
           order: {
             external_order_id: externalOrderId,
             products,
             total_order_value: totalOrderValue,
           },
-          onOrderCreated: (detail: unknown) => {
-            console.log('Trysy order created:', detail);
-            toast.success('Try-at-home enabled with Trysy!');
+          onSuccess: (payload: unknown) => {
+            console.log('Trysy order success:', payload);
+            toast.success('Try-at-home order confirmed!');
+          },
+          onError: (err: unknown) => {
+            console.warn('Trysy order failed:', err);
+            toast.error('Try-at-home order failed. Please try again.');
           },
         });
       })
