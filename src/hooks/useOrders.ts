@@ -84,6 +84,10 @@ export function useCreateOrder() {
         total,
       };
 
+      if (params.is_trysy_handled) {
+        orderData.is_trysy_handled = true;
+      }
+
       if (user?.id) {
         orderData.user_id = user.id;
       }
