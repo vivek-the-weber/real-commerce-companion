@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS is_trysy_handled BOOLEAN NOT NULL DEFAULT false;
