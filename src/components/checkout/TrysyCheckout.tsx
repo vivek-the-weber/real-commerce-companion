@@ -61,7 +61,7 @@ export function TrysyCheckout({ externalOrderId, products, totalOrderValue }: Pr
           apiKey: TRYSY_API_KEY,
           mount: '#trysy-mount',
           checkoutSelector: '#pay-button',
-          successRedirectUrl: '/account/orders?order={external_order_id}',
+          successRedirectUrl: '/account/orders/{external_order_id}',
           redirectDelayMs: 1500,
           order: {
             external_order_id: externalOrderId,
