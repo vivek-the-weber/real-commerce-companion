@@ -16,6 +16,7 @@ interface Props {
   externalOrderId: string;
   products: TrysyProduct[];
   totalOrderValue: number;
+  onSuccess?: (payload: unknown) => void;
 }
 
 declare global {
