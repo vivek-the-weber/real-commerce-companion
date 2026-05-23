@@ -807,6 +807,14 @@ export default function Checkout() {
                   <TrysyCheckout
                     externalOrderId={trysyExternalId}
                     totalOrderValue={Math.round(total)}
+                    customer={{
+                      name: address.full_name,
+                      phone: address.phone,
+                      email: address.email,
+                      address: [address.address_line1, address.address_line2].filter(Boolean).join(', '),
+                      city: address.city,
+                      pincode: address.postal_code,
+                    }}
                     products={items.map((item) => ({
                       product_name: item.product?.name || 'Item',
                       size: item.variant?.name,
