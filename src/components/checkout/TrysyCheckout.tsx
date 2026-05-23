@@ -12,11 +12,21 @@ const TRYSY_SDK_URL = 'https://trysy.lovable.app/api/public/sdk.js';
 const TRYSY_STORE_ID = 'f8cde913-77d3-4544-b9b7-137797797091';
 const TRYSY_API_KEY = 'trysy_live_50TOahxTjDDfDjKwqBMDwjg0VcRVdGas';
 
+interface TrysyCustomer {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  pincode?: string;
+}
+
 interface Props {
   externalOrderId: string;
   products: TrysyProduct[];
   totalOrderValue: number;
   onSuccess?: (payload: unknown) => void;
+  customer?: TrysyCustomer;
 }
 
 declare global {
@@ -48,13 +58,49 @@ function loadTrysySdk(): Promise<void> {
   });
 }
 
-export function TrysyCheckout({ externalOrderId, products, totalOrderValue, onSuccess }: Props) {
+export function TrysyCheckout({ externalOrderId, products, totalOrderValue, onSuccess, customer }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const onSuccessRef = useRef(onSuccess);
   onSuccessRef.current = onSuccess;
+  const customerRef = useRef(customer);
+  customerRef.current = customer;
 
   useEffect(() => {
     let cancelled = false;
+    let observer: MutationObserver | null = null;
+
+    const setVal = (input: HTMLInputElement | null, value: string | undefined) => {
+      if (!input || !value) return;
+      if (input.value) return; // don't overwrite user edits
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    const autofill = () => {
+      const root = mountRef.current;
+      const c = customerRef.current;
+      if (!root || !c) return false;
+      const inputs = root.querySelectorAll<HTMLInputElement>('input.trysy-input');
+      if (!inputs.length) return false;
+      inputs.forEach((input) => {
+        const ph = (input.getAttribute('placeholder') || '').toLowerCase();
+        const type = (input.getAttribute('type') || '').toLowerCase();
+        if (ph.includes('full name')) setVal(input, c.name);
+        else if (type === 'tel') setVal(input, c.phone);
+        else if (type === 'email') setVal(input, c.email);
+        else if (ph.includes('house') || ph.includes('street')) setVal(input, c.address);
+        else if (ph.includes('411001')) setVal(input, c.pincode);
+        else if (type === 'text' && (input.value === 'Pune' || ph.includes('city'))) {
+          if (c.city) {
+            input.value = c.city;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+      });
+      return true;
+    };
 
     loadTrysySdk()
       .then(() => {
@@ -78,6 +124,15 @@ export function TrysyCheckout({ externalOrderId, products, totalOrderValue, onSu
             toast.error('Try-at-home order failed. Please try again.');
           },
         });
+
+        // Watch for form mount and autofill
+        if (mountRef.current) {
+          observer = new MutationObserver(() => {
+            autofill();
+          });
+          observer.observe(mountRef.current, { childList: true, subtree: true });
+          autofill();
+        }
       })
       .catch((err) => {
         console.error('Trysy SDK error:', err);
@@ -85,6 +140,7 @@ export function TrysyCheckout({ externalOrderId, products, totalOrderValue, onSu
 
     return () => {
       cancelled = true;
+      observer?.disconnect();
       window.Trysy?.destroy?.();
     };
   }, [externalOrderId, products, totalOrderValue]);
