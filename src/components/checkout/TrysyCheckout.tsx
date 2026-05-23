@@ -12,11 +12,21 @@ const TRYSY_SDK_URL = 'https://trysy.lovable.app/api/public/sdk.js';
 const TRYSY_STORE_ID = 'f8cde913-77d3-4544-b9b7-137797797091';
 const TRYSY_API_KEY = 'trysy_live_50TOahxTjDDfDjKwqBMDwjg0VcRVdGas';
 
+interface TrysyCustomer {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  pincode?: string;
+}
+
 interface Props {
   externalOrderId: string;
   products: TrysyProduct[];
   totalOrderValue: number;
   onSuccess?: (payload: unknown) => void;
+  customer?: TrysyCustomer;
 }
 
 declare global {
